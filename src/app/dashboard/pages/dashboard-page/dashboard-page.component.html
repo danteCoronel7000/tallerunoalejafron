@@ -1,0 +1,195 @@
+<!-- Hero Section con Bienvenida -->
+<div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 pt-20 pb-24">
+  <!-- Contenedor principal con padding para nav y footer -->
+  <div class="container mx-auto px-4 py-8">
+    
+    <!-- Card de Bienvenida -->
+    <div class="max-w-2xl mx-auto mb-12 animate-fade-in">
+      <div class="bg-white rounded-3xl shadow-xl border border-blue-100 overflow-hidden">
+        <!-- Header con gradiente -->
+        <div class="bg-gradient-to-r from-blue-950 to-blue-800 p-8 text-center">
+          <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full shadow-lg mb-4">
+            <img src="logo_colegio.png" alt="Logo Colegio" class="w-12 h-12 object-contain" />
+          </div>
+          <h1 class="text-3xl font-bold text-white mb-2">
+            ¡Acceso Concedido!
+          </h1>
+          <div class="flex items-center justify-center gap-2 text-blue-100">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+            </svg>
+            <span class="text-lg">
+              Bienvenido, 
+              <span class="font-semibold text-white">
+                {{ authService.usuario()?.login || "Usuario Desconocido" }}
+              </span>
+            </span>
+          </div>
+        </div>
+        
+        <!-- Estadísticas rápidas (opcional) -->
+        <div class="grid grid-cols-3 divide-x divide-blue-100 p-6 bg-blue-50/50">
+          <div class="text-center px-4">
+            <div class="text-2xl font-bold text-blue-950">3</div>
+            <div class="text-sm text-gray-600">Módulos</div>
+          </div>
+          <div class="text-center px-4">
+            <div class="text-2xl font-bold text-blue-950">100%</div>
+            <div class="text-sm text-gray-600">Acceso</div>
+          </div>
+          <div class="text-center px-4">
+            <div class="text-2xl font-bold text-blue-950">24/7</div>
+            <div class="text-sm text-gray-600">Disponible</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Título de Sección -->
+    <div class="max-w-6xl mx-auto mb-8">
+      <h2 class="text-2xl font-bold text-blue-950 mb-2">Panel de Administración</h2>
+      <p class="text-gray-600">Selecciona un módulo para comenzar</p>
+    </div>
+
+    <!-- Grid de Cards Mejorado -->
+    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <!-- Card 1: Gestionar Usuarios -->
+      <div class="group bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-1">
+        <div class="relative overflow-hidden h-48">
+          <img 
+            src="gestionar_usuarios.jpg" 
+            alt="Gestionar usuarios" 
+            class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-blue-950/60 to-transparent"></div>
+          <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-950" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </div>
+        </div>
+        <div class="p-6">
+          <h3 class="text-xl font-bold text-blue-950 mb-2 group-hover:text-blue-700 transition-colors">
+            Gestionar Usuarios
+          </h3>
+          <p class="text-gray-600 text-sm mb-4">
+            Administra permisos, roles y accesos de usuarios del sistema
+          </p>
+          <a 
+            routerLink="/gestion-usuarios" 
+            class="inline-flex items-center justify-center w-full px-6 py-3 bg-blue-950 text-white rounded-xl font-semibold transition-all duration-300 hover:bg-blue-800 hover:shadow-lg group-hover:scale-105"
+          >
+            <span>Acceder</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Card 2: Gestionar Roles -->
+      <div class="group bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-1">
+        <div class="relative overflow-hidden h-48">
+          <img 
+            src="gestionar_roles.jpg" 
+            alt="Gestionar roles" 
+            class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-blue-950/60 to-transparent"></div>
+          <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-950" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+        </div>
+        <div class="p-6">
+          <h3 class="text-xl font-bold text-blue-950 mb-2 group-hover:text-blue-700 transition-colors">
+            Gestionar Roles
+          </h3>
+          <p class="text-gray-600 text-sm mb-4">
+            Define y configura roles con permisos específicos del sistema
+          </p>
+          <a 
+            routerLink="/roles" 
+            class="inline-flex items-center justify-center w-full px-6 py-3 bg-blue-950 text-white rounded-xl font-semibold transition-all duration-300 hover:bg-blue-800 hover:shadow-lg group-hover:scale-105"
+          >
+            <span>Acceder</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Card 3: Gestionar Menús (NUEVA) -->
+      <div class="group bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-1">
+        <div class="relative overflow-hidden h-48 bg-gradient-to-br from-blue-100 to-blue-50">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32 text-blue-200 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </div>
+          <div class="absolute inset-0 bg-gradient-to-t from-blue-950/60 to-transparent"></div>
+          <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-950" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+            </svg>
+          </div>
+        </div>
+        <div class="p-6">
+          <h3 class="text-xl font-bold text-blue-950 mb-2 group-hover:text-blue-700 transition-colors">
+            Gestionar Menús
+          </h3>
+          <p class="text-gray-600 text-sm mb-4">
+            Configura y personaliza los menús de navegación del sistema
+          </p>
+          <a 
+            routerLink="/menus" 
+            class="inline-flex items-center justify-center w-full px-6 py-3 bg-blue-950 text-white rounded-xl font-semibold transition-all duration-300 hover:bg-blue-800 hover:shadow-lg group-hover:scale-105"
+          >
+            <span>Acceder</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Card 4: Reportes -->
+      <div class="group bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-1">
+        <div class="relative overflow-hidden h-48">
+          <img 
+            src="reportes.jpg" 
+            alt="Generar reportes" 
+            class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-blue-950/60 to-transparent"></div>
+          <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-950" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+        </div>
+        <div class="p-6">
+          <h3 class="text-xl font-bold text-blue-950 mb-2 group-hover:text-blue-700 transition-colors">
+            Reportes
+          </h3>
+          <p class="text-gray-600 text-sm mb-4">
+            Genera y visualiza reportes detallados del sistema
+          </p>
+          <button 
+            class="inline-flex items-center justify-center w-full px-6 py-3 bg-blue-950 text-white rounded-xl font-semibold transition-all duration-300 hover:bg-blue-800 hover:shadow-lg group-hover:scale-105"
+          >
+            <span>Acceder</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,309 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">Gestión de Usuarios y Roles</h1>
+      <p class="text-gray-600">Administra usuarios y asigna roles de manera eficiente</p>
+    </div>
+
+    <!-- Grid de dos columnas -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      
+      <!-- ==================== LISTA DE USUARIOS ==================== -->
+      <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 flex flex-col h-[600px]">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+          <h2 class="text-xl font-bold text-white">Lista de Usuarios</h2>
+        </div>
+
+        <!-- Filtro -->
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Filtro:</label>
+          <input 
+            type="text" 
+            [(ngModel)]="filtroUsuario"
+            (input)="filtrarUsuarios()"
+            placeholder="Buscar usuario..."
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm placeholder-gray-400"
+          />
+        </div>
+
+        <!-- Tabla -->
+        <div class="flex-1 overflow-auto">
+          <table class="w-full">
+            <thead class="bg-gray-100 sticky top-0 z-10">
+              <tr>
+                <th class="px-6 py-3 text-left">
+                  <input 
+                    type="checkbox" 
+                    [(ngModel)]="selectAllUsuarios"
+                    (change)="toggleSelectAllUsuarios()"
+                    class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+                  />
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  LISTA DE USUARIOS
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr 
+                *ngFor="let usuario of listUsuarios; let i = index"
+                class="hover:bg-blue-50 transition-colors duration-150 cursor-pointer"
+                [class.bg-blue-50]="usuario.selected"
+              >
+                <td class="px-6 py-4">
+                  <input 
+                    type="checkbox" 
+                    [(ngModel)]="usuario.selected"
+                    (change)="onUsuarioSelect()"
+                    class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+                  />
+                </td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold text-sm shadow-md">
+                      {{usuario.login.substring(0, 2).toUpperCase()}}
+                    </div>
+                    <div>
+                      <div class="font-semibold text-gray-800">{{usuario.login}}</div>
+                      <div class="flex items-center gap-2">
+                        <span 
+                          class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                          [class.bg-green-100]="usuario.estado === 'Activo'"
+                          [class.text-green-800]="usuario.estado === 'Activo'"
+                          [class.bg-red-100]="usuario.estado === 'Inactivo'"
+                          [class.text-red-800]="usuario.estado === 'Inactivo'"
+                        >
+                          {{usuario.estado}}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginador Usuarios -->
+        <nav class="flex-shrink-0 flex flex-col sm:flex-row items-center bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 gap-4 justify-between border-t border-gray-200"
+            aria-label="Table navigation">
+            <!-- Información de paginación -->
+            <span class="text-sm font-medium text-gray-600 whitespace-nowrap">
+                Mostrando
+                <span class="font-bold text-blue-600">
+                    {{ currentPageUsuarios * pageSizeUsuarios + 1 }} -
+                    {{ (currentPageUsuarios * pageSizeUsuarios + listUsuarios.length) }}
+                </span>
+                de
+                <span class="font-bold text-blue-600">{{ totalElementsUsuarios }}</span>
+            </span>
+
+            <!-- Select -->
+            <div class="relative">
+                <select (change)="cambiarPageSizeUsuarios($event)"
+                    class="rounded-xl border-gray-300 shadow-sm text-sm font-medium px-4 py-2.5 pr-10 min-w-[160px] bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition-all duration-200 cursor-pointer hover:border-blue-400">
+                    <option [value]="3">3 por página</option>
+                    <option [value]="24">24 por página</option>
+                    <option [value]="32">32 por página</option>
+                    <option [value]="50">50 por página</option>
+                    <option [value]="100">100 por página</option>
+                </select>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex gap-2">
+                <button (click)="cambiarPaginaUsuarios(currentPageUsuarios - 1)" [disabled]="isFirstUsuarios"
+                    class="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-blue-400 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-300 disabled:hover:text-gray-700 transition-all duration-200 shadow-sm hover:shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                    Anterior
+                </button>
+                <button (click)="cambiarPaginaUsuarios(currentPageUsuarios + 1)" [disabled]="isLastUsuarios"
+                    class="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 border border-transparent rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 hover:-translate-y-0.5">
+                    Siguiente
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                </button>
+            </div>
+        </nav>
+      </div>
+
+      <!-- ==================== LISTA DE ROLES ==================== -->
+      <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 flex flex-col h-[600px]">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4">
+          <h2 class="text-xl font-bold text-white">Lista de Roles</h2>
+        </div>
+
+        <!-- Filtro y Radio Buttons -->
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 space-y-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Filtro:</label>
+            <input 
+              type="text" 
+              [(ngModel)]="filtroRol"
+              (input)="filtrarRoles()"
+              placeholder="Buscar rol..."
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 text-sm placeholder-gray-400"
+            />
+          </div>
+          
+          <!-- Radio Buttons -->
+          <div class="flex items-center gap-4 pt-2">
+            <label class="flex items-center gap-2 cursor-pointer group">
+              <input 
+                type="radio" 
+                name="asignacion" 
+                value="asignados"
+                [(ngModel)]="filtroAsignacion"
+                (change)="cambiarFiltroAsignacion('asignados')"
+                class="w-4 h-4 text-purple-600 border-gray-300 focus:ring-purple-500 cursor-pointer"
+              />
+              <span class="text-sm font-medium text-gray-700 group-hover:text-purple-600 transition-colors">Sí asignados</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer group">
+              <input 
+                type="radio" 
+                name="asignacion" 
+                value="todos"
+                [(ngModel)]="filtroAsignacion"
+                (change)="cambiarFiltroAsignacion('todos')"
+                class="w-4 h-4 text-purple-600 border-gray-300 focus:ring-purple-500 cursor-pointer"
+                checked
+              />
+              <span class="text-sm font-medium text-gray-700 group-hover:text-purple-600 transition-colors">Todos</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer group">
+              <input 
+                type="radio" 
+                name="asignacion" 
+                value="no-asignados"
+                [(ngModel)]="filtroAsignacion"
+                (change)="cambiarFiltroAsignacion('no-asignados')"
+                class="w-4 h-4 text-purple-600 border-gray-300 focus:ring-purple-500 cursor-pointer"
+              />
+              <span class="text-sm font-medium text-gray-700 group-hover:text-purple-600 transition-colors">NO Asignados</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="flex-1 overflow-auto">
+          <table class="w-full">
+            <thead class="bg-gray-100 sticky top-0 z-10">
+              <tr>
+                <th class="px-6 py-3 text-left">
+                  <input 
+                    type="checkbox" 
+                    [(ngModel)]="selectAllRoles"
+                    (change)="toggleSelectAllRoles()"
+                    class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 cursor-pointer"
+                  />
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  LISTA DE ROLES
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr 
+                *ngFor="let rol of listRoles; let i = index"
+                class="hover:bg-purple-50 transition-colors duration-150 cursor-pointer"
+                [class.bg-purple-50]="rol.selected"
+              >
+                <td class="px-6 py-4">
+                  <input 
+                    type="checkbox" 
+                    [(ngModel)]="rol.selected"
+                    (change)="onRolSelect()"
+                    class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 cursor-pointer"
+                  />
+                </td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-semibold text-sm shadow-md">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="font-semibold text-gray-800">{{rol.nombre}}</div>
+                      <div class="flex items-center gap-2">
+                        <span 
+                          class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                          [class.bg-green-100]="rol.estado === 'Activo'"
+                          [class.text-green-800]="rol.estado === 'Activo'"
+                          [class.bg-red-100]="rol.estado === 'Inactivo'"
+                          [class.text-red-800]="rol.estado === 'Inactivo'"
+                        >
+                          {{rol.estado}}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginador Roles -->
+        <nav class="flex-shrink-0 flex flex-col sm:flex-row items-center bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 gap-4 justify-between border-t border-gray-200"
+            aria-label="Table navigation">
+            <!-- Información de paginación -->
+            <span class="text-sm font-medium text-gray-600 whitespace-nowrap">
+                Mostrando
+                <span class="font-bold text-purple-600">
+                    {{ currentPageRoles * pageSizeRoles + 1 }} -
+                    {{ (currentPageRoles * pageSizeRoles + listRoles.length) }}
+                </span>
+                de
+                <span class="font-bold text-purple-600">{{ totalElementsRoles }}</span>
+            </span>
+
+            <!-- Select -->
+            <div class="relative">
+                <select (change)="cambiarPageSizeRoles($event)"
+                    class="rounded-xl border-gray-300 shadow-sm text-sm font-medium px-4 py-2.5 pr-10 min-w-[160px] bg-white focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 transition-all duration-200 cursor-pointer hover:border-purple-400">
+                    <option [value]="3">3 por página</option>
+                    <option [value]="24">24 por página</option>
+                    <option [value]="32">32 por página</option>
+                    <option [value]="50">50 por página</option>
+                    <option [value]="100">100 por página</option>
+                </select>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex gap-2">
+                <button (click)="cambiarPaginaRoles(currentPageRoles - 1)" [disabled]="isFirstRoles"
+                    class="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-purple-400 hover:text-purple-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-300 disabled:hover:text-gray-700 transition-all duration-200 shadow-sm hover:shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                    Anterior
+                </button>
+                <button (click)="cambiarPaginaRoles(currentPageRoles + 1)" [disabled]="isLastRoles"
+                    class="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 border border-transparent rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-purple-600/30 hover:shadow-xl hover:shadow-purple-600/40 hover:-translate-y-0.5">
+                    Siguiente
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                </button>
+            </div>
+        </nav>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,89 @@
+<div class="p-4">
+  <h2 class="text-3xl font-bold mb-6">GESTION USUARIOS DEL SISTEMA</h2>
+
+  <div class="bg-white p-4 shadow-lg rounded-lg mb-6 border border-gray-200">
+    <div
+      class="flex justify-between items-center pb-4 border-b border-gray-100 mb-4"
+    >
+      <h3 class="text-xl font-semibold text-gray-700">Gestión Usuarios :</h3>
+
+      <button
+        class="btn btn-sm btn-success bg-green-600 hover:bg-green-700 text-white border-none"
+        (click)="openNewUsuario()"
+      >
+        <i class="fa-solid fa-plus mr-2"></i> Nuevo Personal
+      </button>
+    </div>
+
+    <div class="flex flex-wrap items-end gap-x-6 gap-y-4 mb-4">
+      <div class="form-control">
+        <label class="label p-0">
+          <span class="label-text font-medium text-sm">Filtro:</span>
+        </label>
+        <input
+          type="text"
+          class="input input-bordered input-sm w-48"
+          placeholder="Buscar por Nombre/Apellido..."
+          #searchInput
+          (keyup.enter)="applyFilter(searchInput.value)"
+        />
+      </div>
+
+
+
+<div class="form-control">
+  <label class="label p-0">
+    <span class="label-text font-medium text-sm">Tipo Personal:</span>
+  </label>
+  <select
+    class="select select-bordered select-sm w-48">
+    <option disabled selected>Seleccione</option>
+          <option value="T">Maestro</option>
+          <option value="Admin">Administrativo</option>
+          <option value="A">Alumno</option>
+    </select>
+</div>
+
+
+      <div class="form-control">
+  <label class="label p-0">
+    <span class="label-text font-medium text-sm">Estado</span>
+  </label>
+  <div class="flex items-center gap-4 pt-1" >
+    <label class="label cursor-pointer p-0 gap-2">
+      <input type="radio" name="estadoFiltro" value="1" checked class="radio radio-xs radio-primary" />
+      <span class="label-text text-sm">Activos</span>
+    </label>
+
+    <label class="label cursor-pointer p-0 gap-2">
+      <input type="radio" name="estadoFiltro" name="estadoFiltro" value="0" class="radio radio-xs radio-primary" />
+      <span class="label-text text-sm">Bajas</span>
+    </label>
+
+    <label class="label cursor-pointer p-0 gap-2">
+      <input type="radio" name="estadoFiltro" value="T" class="radio radio-xs radio-primary" />
+      <span class="label-text text-sm">Todos</span>
+    </label>
+  </div>
+</div>
+    </div>
+  </div>
+  <table-usuarios
+    [usuarios]="usuariosFiltrados()"
+    (updateModal)="openUpdateUsuario($event)"
+    (updateModal)="openUpdateUsuario($event)"
+    (changePassword)="openChangePasswordModal($event)"
+    (deleteUsuario)="onDeleteUsuario($event)"
+    (activeUsuario)="onActiveUsuario($event)"
+  />
+
+  @if(isOpenModal()){
+  <app-form-modal [usuario]="usuarioModal()" (close)="closeModal($event)" />
+  } @if(isOpenPasswordModal()){
+  <app-password-modal
+    [login]="loginToChangePassword()"
+    (submitPassword)="onChangePasswordSubmit($event)"
+    (close)="closePasswordModal()"
+  />
+  }
+</div>

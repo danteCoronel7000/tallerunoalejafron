@@ -1,0 +1,135 @@
+<div class="overflow-x-auto rounded-lg shadow-xl">
+    <table class="table w-full table-zebra">
+
+        <thead class="bg-base-200">
+            <tr>
+                <th class="w-1">Nº</th>
+                <th>Foto</th>
+                <th>Nombre Completo</th>
+                <th class="text-center">Estado</th>
+                <th class="text-center w-1/4">Acciones</th>
+            </tr>
+        </thead>
+
+        <tbody >
+            @for (usuario of listUsuarios; track usuario.login; let i=$index) {
+                <tr>
+                    <th class="w-px">{{ i + 1 }}</th>
+
+                    <td>
+                        <div class="avatar">
+                            <div class="w-10 h-10 rounded-full">
+                                <img [src]="usuario.personal.foto || 'logo_colegio.png'" alt="Foto de {{ usuario.personal.nombre }}" />
+                            </div>
+                        </div>
+                    </td>
+
+                    <td>
+                        {{ usuario.personal.nombre }} {{ usuario.personal.ap }} {{ usuario.personal.am }}
+                    </td>
+
+                    <td class="text-center">
+                        <span
+                            class="badge"
+                            [class.badge-success]="usuario.estado === 1"
+                            [class.badge-error]="usuario.estado !== 1"
+                        >
+                            {{ usuario.estado === 1 ? "Activo" : "Desactivo" }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <div class="flex justify-center space-x-2">
+                          <!--H: modificar datos personales (lapiz)-->
+                            <button
+                                class="btn btn-sm btn-square btn-outline btn-primary tooltip"
+                                data-tip="Modificar Datos Personales"
+                                (click)="updateModal.emit(usuario)"
+                            >
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+
+                            <!--K: Asignar Datos de Acceso (candado)-->
+                            <button
+                                class="btn btn-sm btn-square btn-outline btn-info tooltip"
+                                data-tip="Asignar Datos de Acceso (Login/Password)"
+                                (click)="asignarAcceso.emit(usuario.login)"
+                            >
+                                <i class="fa-solid fa-lock"></i>
+                            </button>
+
+                            <!--V: modificar contraseña (llave)-->
+                            <button
+                                class="btn btn-sm btn-square btn-outline btn-warning tooltip"
+                                data-tip="Modificar Contraseña"
+                                (click)="changePassword.emit(usuario.login)"
+                            >
+                                <i class="fa-solid fa-key"></i>
+                            </button>
+                            <!--B: desactivar/eliminar usuario (tavho)-->
+                            <button
+                                class="btn btn-sm btn-square btn-outline btn-error tooltip"
+                                data-tip="Desactivar/Eliminar"
+                                [disabled]="usuario.estado !== 1"
+                                (click)="deleteUsuario.emit(usuario.login)"
+                            >
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                            <!--H: activar (flecha)-->
+                            <button
+                                class="btn btn-sm btn-square btn-outline btn-success tooltip"
+                                data-tip="Activar"
+                                [disabled]="usuario.estado === 1"
+                                (click)="activeUsuario.emit(usuario.login)"
+                            >
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <nav class="sticky bottom-0 z-10 flex items-center bg-amber-50 px-4 py-3 gap-4 justify-between dark:bg-gray-800"
+          aria-label="Table navigation">
+          <!--aqui puse sobre la paginacion-->
+          <span class="text-sm font-normal text-gray-500 dark:text-gray-400 whitespace-nowrap">
+            Mostrando
+            <span class="font-semibold text-gray-900 dark:text-white">
+              {{ currentPage * pageSize + 1 }} -
+              {{ (currentPage * pageSize + listUsuarios.length) }}
+            </span>
+            de
+            <span class="font-semibold text-gray-900 dark:text-white">{{ totalElements }}</span>
+          </span>
+
+          <!-- Select -->
+          <div class="relative">
+            <select (change)="cambiarPageSize($event)"
+              class="rounded border-gray-300 shadow-sm text-sm px-3 py-1.5 pr-8 min-w-[140px] bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+              <option [value]="12">12 por página</option>
+              <option [value]="24">24 por página</option>
+              <option [value]="32">32 por página</option>
+              <option [value]="50">50 por página</option>
+              <option [value]="100">100 por página</option>
+            </select>
+          </div>
+
+          <!-- Botones -->
+          <ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
+            <li>
+              <button (click)="cambiarPagina(currentPage - 1)" [disabled]="isFirst"
+                class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 disabled:opacity-50">
+                ← anterior
+              </button>
+            </li>
+            <li>
+              <button (click)="cambiarPagina(currentPage + 1)" [disabled]="isLast"
+                class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 disabled:opacity-50">
+                Siguiente →
+              </button>
+            </li>
+          </ul>
+        </nav>
+
+    </table>
+</div>
