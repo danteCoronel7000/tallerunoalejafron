@@ -3,6 +3,7 @@ import { CreateRoleRequest, CreateRoleResponse, RolDto, UpdateRoleRequest } from
 import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { PageableResponse } from '../../../dashboard/interfaces/usuario-ges.interface';
+import { UsuarioPageDto } from '../../roles-usuarios/models/roles.usuarios.model';
 
 @Injectable({
   providedIn: 'root'
@@ -69,6 +70,15 @@ export class RoleService {
 
   getRolesPorEstado(estado: string): Observable<RolDto[]> {
   return this.http.get<RolDto[]>(`${this.apiUrl}/estado/${estado}`);
+}
+
+// Buscar usuarios por nombre
+buscarUsuarios(nombre: string = ''): Observable<UsuarioPageDto[]> {
+  let params = new HttpParams();
+  if (nombre && nombre.trim() !== '') {
+    params = params.set('nombre', nombre.trim());
+  }
+  return this.http.get<UsuarioPageDto[]>(`${this.apiUrl}/buscar`, { params });
 }
 
 }

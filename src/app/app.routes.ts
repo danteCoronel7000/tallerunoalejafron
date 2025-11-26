@@ -10,6 +10,7 @@ import { ROL_ROUTES } from './bussines/roles/routes/rol.routes';
 import { MENU_ROUTES } from './bussines/menus/routes/menu.route';
 import { PRO_MENU_ROUTES } from './bussines/procesos-menus/routes/pro.menu.route';
 import { ROL_USU_ROUTES } from './bussines/roles-usuarios/routes/rol.usu.route';
+import { MENU_ROL_ROUTES } from './bussines/menus-roles/routes/menu-rol-route';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -35,6 +36,7 @@ export const routes: Routes = [
   ...MENU_ROUTES,
   ...PRO_MENU_ROUTES,
   ...ROL_USU_ROUTES,
+  ...MENU_ROL_ROUTES,
 
   { path: 'contactos', component: ContactosPageComponent },
   { path: 'gestion-usuarios', component: GestionarUsuariosPageComponent },

@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { PageableResponse, Usuario } from '../interfaces/usuario-ges.interface';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/services/auth.service';
+import { UsuarioPageDto } from '../../bussines/roles-usuarios/models/roles.usuarios.model';
 
 @Injectable({
   providedIn: 'root',
@@ -53,7 +54,27 @@ getUsuariosPaginados(
     .set('sortDir', sortDir);
 
 
-  return this.http.get<PageableResponse<Usuario>>(`${this.url}/get/paginado`, {
+  return this.http.get<PageableResponse<Usuario>>(`${this.url}/api/usuarios/get/paginado`, {
+    params,
+    headers: this.getAuthHeaders()
+  });
+}
+
+getUsuariosPaginadosDto(
+  page: number = 0,
+  size: number = 3,
+  sortBy: string = 'login',
+  sortDir: string = 'asc'
+): Observable<PageableResponse<UsuarioPageDto>> {
+
+  let params = new HttpParams()
+    .set('page', page.toString())
+    .set('size', size.toString())
+    .set('sortBy', sortBy)
+    .set('sortDir', sortDir);
+
+
+  return this.http.get<PageableResponse<UsuarioPageDto>>(`${this.url}/api/usuarios/get/paginado/dto`, {
     params,
     headers: this.getAuthHeaders()
   });
@@ -61,9 +82,7 @@ getUsuariosPaginados(
 
   // POST
   crearUsuario(usuario: Usuario): Observable<Usuario> {
-    return this.http.post<Usuario>(this.baseUrl, usuario, {
-      headers: this.getAuthHeaders(),
-    });
+    return this.http.post<Usuario>(`${this.baseUrl}/create`, usuario);
   }
 
   // PUT: /api/usuarios/password/{login}

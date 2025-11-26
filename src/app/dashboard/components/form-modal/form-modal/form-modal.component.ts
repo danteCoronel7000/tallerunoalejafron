@@ -70,8 +70,8 @@ export class FormModalComponent implements OnInit {
         fnac: ['', [Validators.required]],
         ecivil: ['S', [Validators.required]],
         genero: ['M', [Validators.required]],
-        direc: ['', [Validators.required]],
-        tipo: ['M', [Validators.required]],
+        direc: [''],
+        tipo: ['M'],
         estado: [1, [Validators.required]],
         foto: [''],
 

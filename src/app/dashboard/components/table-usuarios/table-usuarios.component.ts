@@ -36,8 +36,7 @@ export class TableUsuariosComponent {
   changePassword = output<string>();
 
   getUsuarios(): void {
-    this.usuarioService
-      .getUsuariosPaginados(
+    this.usuarioService.getUsuariosPaginados(
         this.currentPage,
         this.pageSize,
         this.sortBy,

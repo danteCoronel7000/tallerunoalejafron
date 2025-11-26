@@ -1,0 +1,55 @@
+<div class="fixed top-4 right-4 z-50 space-y-4">
+      <div 
+        *ngFor="let notification of notifications"
+        [class]="getNotificationClass(notification)"
+      >
+        <div [class]="getCardClass(notification)">
+          <!-- Icono -->
+          <div [class]="getIconBgClass(notification)">
+            <svg 
+              *ngIf="notification.type === 'success'"
+              class="w-6 h-6 text-green-600" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            
+            <svg 
+              *ngIf="notification.type === 'error'"
+              class="w-6 h-6 text-red-600" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </div>
+          
+          <!-- Contenido -->
+          <div class="flex-1">
+            <h3 [class]="getTitleClass(notification)">{{ notification.title }}</h3>
+            <p class="text-gray-600 text-sm mt-1">{{ notification.message }}</p>
+          </div>
+          
+          <!-- Botón Cerrar -->
+          <button 
+            (click)="close(notification.id)"
+            class="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Barra de Progreso -->
+        <div class="h-1 bg-white rounded-b-lg overflow-hidden">
+          <div 
+            [class]="getProgressBarClass(notification)"
+            [style.animation]="notification.show ? 'progress 5s linear' : 'none'"
+          ></div>
+        </div>
+      </div>
+    </div>

@@ -9,49 +9,57 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './layoutmr.css'
 })
 export default class Layoutmr {
+  // Datos ficticios - Roles
+  listRoles: Rol[] = [
+    { codr: 1, nombre: 'Administrador', estado: '1' },
+    { codr: 2, nombre: 'Supervisor', estado: '1' },
+    { codr: 3, nombre: 'Usuario', estado: '1' },
+    { codr: 4, nombre: 'Invitado', estado: '1' },
+    { codr: 5, nombre: 'Auditor', estado: '0' },
+    { codr: 6, nombre: 'Desarrollador', estado: '1' },
+    { codr: 7, nombre: 'Analista', estado: '1' }
+  ];
+
+  // Datos ficticios - Menús
   listMenus: Menu[] = [
-  { codm: 1, nombre: "Dashboard" },
-  { codm: 2, nombre: "Usuarios" },
-  { codm: 3, nombre: "Roles" },
-  { codm: 4, nombre: "Menús" },
-  { codm: 5, nombre: "Reportes" },
-  { codm: 6, nombre: "Configuración" },
-  { codm: 7, nombre: "Auditoría" },
-  { codm: 8, nombre: "Perfil" }
-];
+    { codm: 1, nombre: 'Dashboard' },
+    { codm: 2, nombre: 'Administración' },
+    { codm: 3, nombre: 'Reportes' },
+    { codm: 4, nombre: 'Configuración' },
+    { codm: 5, nombre: 'Usuarios' },
+    { codm: 6, nombre: 'Ventas' },
+    { codm: 7, nombre: 'Inventario' },
+    { codm: 8, nombre: 'Auditoría' }
+  ];
 
- listRoles: Rol[] = [
-  { codr: 1, nombre: "Administrador", estado: "1" },
-  { codr: 2, nombre: "Supervisor", estado: '1' },
-  { codr: 3, nombre: "Usuario", estado: '1' },
-  { codr: 4, nombre: "Invitado", estado: '1' },
-  { codr: 5, nombre: "Auditor", estado: '0' },
-  { codr: 6, nombre: "Desarrollador", estado: '1' },
-  { codr: 7, nombre: "Analista", estado: '1' },
-  { codr: 8, nombre: "Consultor", estado: '0' }
-];
+  // Relación muchos a muchos - Datos ficticios
+  menuRoles: MenuRol[] = [
+    { codm: 1, codr: 1 },
+    { codm: 2, codr: 1 },
+    { codm: 3, codr: 1 },
+    { codm: 4, codr: 1 },
+    { codm: 1, codr: 2 }
+  ];
 
- menuRoles: MenuRol[] = [
-  { codm: 1, codr: 1 }, // Dashboard - Administrador
-  { codm: 2, codr: 1 }, // Usuarios - Administrador
-  { codm: 3, codr: 1 }, // Roles - Administrador
-  { codm: 4, codr: 1 }, // Menús - Administrador
-  { codm: 1, codr: 2 }, // Dashboard - Supervisor
-  { codm: 5, codr: 2 }, // Reportes - Supervisor
-  { codm: 1, codr: 3 }, // Dashboard - Usuario
-  { codm: 8, codr: 3 }  // Perfil - Usuario
-];
   // Filtros
+  filtroRol = '';
   filtroMenu = '';
-  filtroProceso = '';
   filtroAsignacion = 'todos'; // 'asignados', 'todos', 'noAsignados'
 
-  // Selección - Menús (Radio Button - Solo uno)
-  menuSeleccionado: number | null = null;
+  // Selección - Roles (Radio Button - Solo uno)
+  rolSeleccionado: number | null = null;
 
-  // Selección - Procesos (Checkboxes - Múltiples)
-  procesosSeleccionados = new Set<number>();
-  todosProcesosMarcados = false;
+  // Selección - Menús (Checkboxes - Múltiples)
+  menusSeleccionados = new Set<number>();
+  todosMenusMarcados = false;
+
+  // Paginación Roles
+  currentPageRoles = 0;
+  pageSizeRoles = 3;
+  totalElementsRoles = 0;
+  isFirstRoles = true;
+  isLastRoles = false;
+  rolesPaginados: Rol[] = [];
 
   // Paginación Menús
   currentPageMenus = 0;
@@ -61,32 +69,89 @@ export default class Layoutmr {
   isLastMenus = false;
   menusPaginados: Menu[] = [];
 
-  // Paginación Procesos
-  currentPageProcesos = 0;
-  pageSizeProcesos = 3;
-  totalElementsProcesos = 0;
-  isFirstProcesos = true;
-  isLastProcesos = false;
-  procesosPaginados: Proceso[] = [];
-
   ngOnInit(): void {
+    this.actualizarPaginacionRoles();
     this.actualizarPaginacionMenus();
-    this.actualizarPaginacionProcesos();
+  }
+
+  // ==================== MÉTODOS ROLES ====================
+
+  seleccionarRol(codr: number): void {
+    this.rolSeleccionado = codr;
+    this.menusSeleccionados.clear();
+    this.todosMenusMarcados = false;
+    this.actualizarPaginacionMenus();
+  }
+
+  actualizarPaginacionRoles(): void {
+    const rolesFiltrados = this.listRoles.filter(rol =>
+      rol.nombre.toLowerCase().includes(this.filtroRol.toLowerCase())
+    );
+
+    this.totalElementsRoles = rolesFiltrados.length;
+    const inicio = this.currentPageRoles * this.pageSizeRoles;
+    const fin = inicio + this.pageSizeRoles;
+    this.rolesPaginados = rolesFiltrados.slice(inicio, fin);
+
+    this.isFirstRoles = this.currentPageRoles === 0;
+    this.isLastRoles = fin >= this.totalElementsRoles;
+  }
+
+  cambiarPaginaRoles(page: number): void {
+    this.currentPageRoles = page;
+    this.actualizarPaginacionRoles();
+  }
+
+  cambiarPageSizeRoles(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.pageSizeRoles = parseInt(select.value);
+    this.currentPageRoles = 0;
+    this.actualizarPaginacionRoles();
   }
 
   // ==================== MÉTODOS MENÚS ====================
 
-  seleccionarMenu(codm: number): void {
-    this.menuSeleccionado = codm;
-    this.procesosSeleccionados.clear();
-    this.todosProcesosMarcados = false;
-    this.actualizarPaginacionProcesos();
+  toggleSeleccionMenu(codm: number): void {
+    if (this.menusSeleccionados.has(codm)) {
+      this.menusSeleccionados.delete(codm);
+    } else {
+      this.menusSeleccionados.add(codm);
+    }
+    this.actualizarTodosMenusMarcados();
+  }
+
+  toggleTodosMenus(event: Event): void {
+    const checkbox = event.target as HTMLInputElement;
+    if (checkbox.checked) {
+      this.menusPaginados.forEach(menu => this.menusSeleccionados.add(menu.codm));
+    } else {
+      this.menusPaginados.forEach(menu => this.menusSeleccionados.delete(menu.codm));
+    }
+    this.actualizarTodosMenusMarcados();
+  }
+
+  actualizarTodosMenusMarcados(): void {
+    this.todosMenusMarcados = this.menusPaginados.length > 0 &&
+      this.menusPaginados.every(menu => this.menusSeleccionados.has(menu.codm));
   }
 
   actualizarPaginacionMenus(): void {
-    const menusFiltrados = this.listMenus.filter(menu =>
+    let menusFiltrados = this.listMenus.filter(menu =>
       menu.nombre.toLowerCase().includes(this.filtroMenu.toLowerCase())
     );
+
+    // Aplicar filtro de asignación
+    if (this.rolSeleccionado) {
+      if (this.filtroAsignacion === 'asignados') {
+        menusFiltrados = menusFiltrados.filter(menu =>
+          this.esMenuAsignado(menu.codm)
+        );
+      } else if (this.filtroAsignacion === 'noAsignados') {
+        menusFiltrados = menusFiltrados.filter(menu =>
+          !this.esMenuAsignado(menu.codm)
+        );
+      }
+    }
 
     this.totalElementsMenus = menusFiltrados.length;
     const inicio = this.currentPageMenus * this.pageSizeMenus;
@@ -95,6 +160,8 @@ export default class Layoutmr {
 
     this.isFirstMenus = this.currentPageMenus === 0;
     this.isLastMenus = fin >= this.totalElementsMenus;
+
+    this.actualizarTodosMenusMarcados();
   }
 
   cambiarPaginaMenus(page: number): void {
@@ -109,123 +176,56 @@ export default class Layoutmr {
     this.actualizarPaginacionMenus();
   }
 
-  // ==================== MÉTODOS PROCESOS ====================
-
-  toggleSeleccionProceso(codp: number): void {
-    if (this.procesosSeleccionados.has(codp)) {
-      this.procesosSeleccionados.delete(codp);
-    } else {
-      this.procesosSeleccionados.add(codp);
-    }
-    this.actualizarTodosProcesosMarcados();
-  }
-
-  toggleTodosProcesos(event: Event): void {
-    const checkbox = event.target as HTMLInputElement;
-    if (checkbox.checked) {
-      this.procesosPaginados.forEach(proceso => this.procesosSeleccionados.add(proceso.codp));
-    } else {
-      this.procesosPaginados.forEach(proceso => this.procesosSeleccionados.delete(proceso.codp));
-    }
-    this.actualizarTodosProcesosMarcados();
-  }
-
-  actualizarTodosProcesosMarcados(): void {
-    this.todosProcesosMarcados = this.procesosPaginados.length > 0 &&
-      this.procesosPaginados.every(proceso => this.procesosSeleccionados.has(proceso.codp));
-  }
-
-  actualizarPaginacionProcesos(): void {
-    let procesosFiltrados = this.listProcesos.filter(proceso =>
-      proceso.nombre.toLowerCase().includes(this.filtroProceso.toLowerCase())
-    );
-
-    // Aplicar filtro de asignación
-    if (this.menuSeleccionado) {
-      if (this.filtroAsignacion === 'asignados') {
-        procesosFiltrados = procesosFiltrados.filter(proceso =>
-          this.gnado(proceso.codp)
-        );
-      } else if (this.filtroAsignacion === 'noAsignados') {
-        procesosFiltrados = procesosFiltrados.filter(proceso =>
-          !this.esProcesoAsignado(proceso.codp)
-        );
-      }
-    }
-
-    this.totalElementsProcesos = procesosFiltrados.length;
-    const inicio = this.currentPageProcesos * this.pageSizeProcesos;
-    const fin = inicio + this.pageSizeProcesos;
-    this.procesosPaginados = procesosFiltrados.slice(inicio, fin);
-
-    this.isFirstProcesos = this.currentPageProcesos === 0;
-    this.isLastProcesos = fin >= this.totalElementsProcesos;
-
-    this.actualizarTodosProcesosMarcados();
-  }
-
-  cambiarPaginaProcesos(page: number): void {
-    this.currentPageProcesos = page;
-    this.actualizarPaginacionProcesos();
-  }
-
-  cambiarPageSizeProcesos(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.pageSizeProcesos = parseInt(select.value);
-    this.currentPageProcesos = 0;
-    this.actualizarPaginacionProcesos();
-  }
-
-  esProcesoAsignado(codp: number): boolean {
-    if (!this.menuSeleccionado) return false;
-    return this.menuProcesos.some(mp => mp.codm === this.menuSeleccionado && mp.codp === codp);
+  esMenuAsignado(codm: number): boolean {
+    if (!this.rolSeleccionado) return false;
+    return this.menuRoles.some(mr => mr.codr === this.rolSeleccionado && mr.codm === codm);
   }
 
   // ==================== MÉTODOS DE ASIGNACIÓN ====================
 
-  asignarProcesosAMenu(): void {
-    if (!this.menuSeleccionado || this.procesosSeleccionados.size === 0) {
-      console.log('Debe seleccionar un menú y al menos un proceso');
+  asignarMenusARol(): void {
+    if (!this.rolSeleccionado || this.menusSeleccionados.size === 0) {
+      console.log('Debe seleccionar un rol y al menos un menú');
       return;
     }
 
-    this.procesosSeleccionados.forEach(codp => {
+    this.menusSeleccionados.forEach(codm => {
       // Verificar si ya existe la asignación
-      const existe = this.menuProcesos.some(mp => mp.codm === this.menuSeleccionado && mp.codp === codp);
+      const existe = this.menuRoles.some(mr => mr.codr === this.rolSeleccionado && mr.codm === codm);
       if (!existe) {
-        this.menuProcesos.push({
-          codm: this.menuSeleccionado!,
-          codp: codp
+        this.menuRoles.push({
+          codr: this.rolSeleccionado!,
+          codm: codm
         });
       }
     });
 
-    console.log('Procesos asignados correctamente');
-    console.log('Relaciones actuales:', this.menuProcesos);
+    console.log('Menús asignados correctamente');
+    console.log('Relaciones actuales:', this.menuRoles);
     
-    this.procesosSeleccionados.clear();
-    this.todosProcesosMarcados = false;
-    this.actualizarPaginacionProcesos();
+    this.menusSeleccionados.clear();
+    this.todosMenusMarcados = false;
+    this.actualizarPaginacionMenus();
   }
 
-  desasignarProcesos(): void {
-    if (!this.menuSeleccionado || this.procesosSeleccionados.size === 0) {
-      console.log('Debe seleccionar un menú y al menos un proceso');
+  desasignarMenus(): void {
+    if (!this.rolSeleccionado || this.menusSeleccionados.size === 0) {
+      console.log('Debe seleccionar un rol y al menos un menú');
       return;
     }
 
-    this.procesosSeleccionados.forEach(codp => {
-      const index = this.menuProcesos.findIndex(mp => mp.codm === this.menuSeleccionado && mp.codp === codp);
+    this.menusSeleccionados.forEach(codm => {
+      const index = this.menuRoles.findIndex(mr => mr.codr === this.rolSeleccionado && mr.codm === codm);
       if (index !== -1) {
-        this.menuProcesos.splice(index, 1);
+        this.menuRoles.splice(index, 1);
       }
     });
 
-    console.log('Procesos desasignados correctamente');
-    console.log('Relaciones actuales:', this.menuProcesos);
+    console.log('Menús desasignados correctamente');
+    console.log('Relaciones actuales:', this.menuRoles);
     
-    this.procesosSeleccionados.clear();
-    this.todosProcesosMarcados = false;
-    this.actualizarPaginacionProcesos();
+    this.menusSeleccionados.clear();
+    this.todosMenusMarcados = false;
+    this.actualizarPaginacionMenus();
   }
 }

@@ -1,20 +1,22 @@
-interface Usuario {
+export interface Usuario {
   login: string;
   estado: string;
   password: string;
-  codp: number;
-  persona?: Persona;
-  selected?: boolean;
+  codp: Persona;
 }
 
-interface Rol {
+export interface Rol {
   codr: number;
   nombre: string;
   estado: string;
-  selected?: boolean;
 }
 
-interface Persona {
+export interface UsuRol{
+  codr: number;
+  login: string;
+}
+
+export interface Persona {
   codp: number;
   nombre: string;
   ap: string;
@@ -27,4 +29,18 @@ interface Persona {
   telf: string;
   tipo: string;
   foto: string;
+}
+
+export interface AsignarRolesUsuarioDTO {
+  usuarioId: String;
+  rolesIds: number[];
+}
+
+
+export interface UsuarioPageDto {
+  login: string;
+  estado: number;
+  nombre: string;
+  ap: string;
+  am: string;
 }

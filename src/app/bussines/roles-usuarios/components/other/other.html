@@ -1,1 +1,80 @@
-<p>other works!</p>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cards Materias y Paralelos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-8">
+  <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+    
+    <!-- Card 1: Materias -->
+    <div class="group bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-1">
+      <div class="relative overflow-hidden h-48">
+        <img 
+          src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&h=400&fit=crop" 
+          alt="Gestión de materias" 
+          class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-blue-950/60 to-transparent"></div>
+        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-950" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </div>
+      </div>
+      <div class="p-6">
+        <h3 class="text-xl font-bold text-blue-950 mb-2 group-hover:text-blue-700 transition-colors">
+          Materias
+        </h3>
+        <p class="text-gray-600 text-sm mb-4">
+          Administra y gestiona las materias del sistema educativo
+        </p>
+        <button 
+          class="inline-flex items-center justify-center w-full px-6 py-3 bg-blue-950 text-white rounded-xl font-semibold transition-all duration-300 hover:bg-blue-800 hover:shadow-lg group-hover:scale-105"
+        >
+          <span>Acceder</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Card 2: Paralelos -->
+    <div class="group bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-1">
+      <div class="relative overflow-hidden h-48">
+        <img 
+          src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=800&h=400&fit=crop" 
+          alt="Gestión de paralelos" 
+          class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-blue-950/60 to-transparent"></div>
+        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-950" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </div>
+      </div>
+      <div class="p-6">
+        <h3 class="text-xl font-bold text-blue-950 mb-2 group-hover:text-blue-700 transition-colors">
+          Paralelos
+        </h3>
+        <p class="text-gray-600 text-sm mb-4">
+          Organiza y administra los paralelos y grupos de estudiantes
+        </p>
+        <button 
+          class="inline-flex items-center justify-center w-full px-6 py-3 bg-blue-950 text-white rounded-xl font-semibold transition-all duration-300 hover:bg-blue-800 hover:shadow-lg group-hover:scale-105"
+        >
+          <span>Acceder</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
