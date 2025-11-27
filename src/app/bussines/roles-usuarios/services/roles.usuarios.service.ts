@@ -17,6 +17,11 @@ export class RolesUsuariosService {
     return this.http.post(`${this.api}/asignar/roles`, dto);
   }
 
+  desasignarRoles(dto: AsignarRolesUsuarioDTO): Observable<any> {
+    return this.http.post(`${this.api}/desasignar/roles`, dto);
+}
+
+
   // Buscar usuarios por nombre
   buscarUsuarios(nombre: string = ''): Observable<UsuarioPageDto[]> {
     let params = new HttpParams();

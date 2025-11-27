@@ -1,7 +1,7 @@
-export interface Notification {
+export interface Notificacion {
   id: number;
-  type: 'success' | 'error';
-  title: string;
-  message: string;
-  show: boolean;
+  tipo: 'success' | 'error';
+  titulo: string;
+  mensaje: string;
+  visible: boolean;
 }

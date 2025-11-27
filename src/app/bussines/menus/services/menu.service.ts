@@ -38,6 +38,23 @@ export class MenuService {
     return this.http.get<PageableResponse<MenuDto>>(`${this.apiUrl}/get/paginado/menus`, { params });
   }
 
+    getMenusPaginadosDto(
+    page: number = 0,
+    size: number = 3,
+    sortBy: string = 'nombre',
+    sortDir: string = 'asc'
+  ): Observable<PageableResponse<MenuDto>> {
+
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sortBy', sortBy)
+      .set('sortDir', sortDir);
+
+    return this.http.get<PageableResponse<MenuDto>>(`${this.apiUrl}/get/paginado/menus`, { params });
+  }
+
+
   updateMenu(id: number, menuData: UpdateMenuRequest): Observable<any> {
     return this.http.put(`${this.apiUrl}/update/${id}`, menuData);
   }

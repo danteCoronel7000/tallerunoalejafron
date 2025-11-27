@@ -41,6 +41,23 @@ export class RoleService {
     return this.http.get<PageableResponse<RolDto>>(`${this.apiUrl}/get/paginado/roles`, { params });
   }
 
+  getRolesPaginadosDto(
+    page: number = 0,
+    size: number = 3,
+    sortBy: string = 'nombre',
+    sortDir: string = 'asc'
+  ): Observable<PageableResponse<RolDto>> {
+
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sortBy', sortBy)
+      .set('sortDir', sortDir);
+
+    return this.http.get<PageableResponse<RolDto>>(`${this.apiUrl}/get/paginado/roles`, { params });
+  }
+
+
   updateRole(id: number, roleData: UpdateRoleRequest): Observable<any> {
     return this.http.put(`${this.apiUrl}/update/${id}`, roleData);
   }

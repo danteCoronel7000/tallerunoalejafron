@@ -1,7 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { AsignarProcesosMenuDTO, MenuDto, ProcesoDto } from '../../models/pro-menu.model';
+import { MenuProcesoService } from '../../services/menu.proceso.service';
+import { MenuService } from '../../../menus/services/menu.service';
+import { ProcesoService } from '../../services/proceso.service';
+import Swal from 'sweetalert2';
 
+type EstadoFiltro = 'todos' | 'asignados' | 'noasignados' | 'menu';
 @Component({
   selector: 'app-layout',
   imports: [CommonModule, FormsModule],
@@ -9,223 +15,318 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './layout.css'
 })
 export default class Layout {
-    // Datos ficticios - Menús
-  listMenus: Menu[] = [
-    { codm: 1, nombre: 'Dashboard' },
-    { codm: 2, nombre: 'Administración' },
-    { codm: 3, nombre: 'Reportes' },
-    { codm: 4, nombre: 'Configuración' },
-    { codm: 5, nombre: 'Usuarios' },
-    { codm: 6, nombre: 'Ventas' },
-    { codm: 7, nombre: 'Inventario' }
-  ];
+    
+  // listas
+  listMenus: MenuDto[] = [];
+  listProcesos: ProcesoDto[] = [];
 
-  // Datos ficticios - Procesos
-  listProcesos: Proceso[] = [
-    { codp: 1, nombre: 'Gestión de Usuarios', enlace: '/admin/usuarios', ayuda: 'Administrar usuarios del sistema', estado: 1 },
-    { codp: 2, nombre: 'Gestión de Roles', enlace: '/admin/roles', ayuda: 'Administrar roles y permisos', estado: 1 },
-    { codp: 3, nombre: 'Ver Dashboard', enlace: '/dashboard', ayuda: 'Panel de control principal', estado: 1 },
-    { codp: 4, nombre: 'Reportes Ventas', enlace: '/reportes/ventas', ayuda: 'Generar reportes de ventas', estado: 1 },
-    { codp: 5, nombre: 'Configuración Sistema', enlace: '/config/sistema', ayuda: 'Configurar parámetros del sistema', estado: 1 },
-    { codp: 6, nombre: 'Backup DB', enlace: '/config/backup', ayuda: 'Realizar respaldo de base de datos', estado: 0 },
-    { codp: 7, nombre: 'Auditoría', enlace: '/admin/auditoria', ayuda: 'Ver logs de auditoría', estado: 1 },
-    { codp: 8, nombre: 'Control Inventario', enlace: '/inventario/control', ayuda: 'Gestionar inventario', estado: 1 }
-  ];
+  estadoSeleccionado: EstadoFiltro = 'todos';
+  errorMessage = '';
+  procesosDelMenu = new Set<number>(); 
+  procesosMenuSeleccionado: number[] = []; 
 
-  // Relación muchos a muchos - Datos ficticios
-  menuProcesos: MenuProceso[] = [
-    { codm: 1, codp: 3 },
-    { codm: 2, codp: 1 },
-    { codm: 2, codp: 2 },
-    { codm: 4, codp: 5 },
-    { codm: 4, codp: 6 }
-  ];
-
-  // Filtros
-  filtroMenu = '';
-  filtroProceso = '';
-  filtroAsignacion = 'todos'; // 'asignados', 'todos', 'noAsignados'
-
-  // Selección - Menús (Radio Button - Solo uno)
+  // selecciones y relaciones
   menuSeleccionado: number | null = null;
+  procesosSeleccionados: Set<number> = new Set<number>();
 
-  // Selección - Procesos (Checkboxes - Múltiples)
-  procesosSeleccionados = new Set<number>();
-  todosProcesosMarcados = false;
-
-  // Paginación Menús
+  // paginación menús
   currentPageMenus = 0;
   pageSizeMenus = 3;
+  totalPagesMenus = 0;
   totalElementsMenus = 0;
   isFirstMenus = true;
   isLastMenus = false;
-  menusPaginados: Menu[] = [];
+  menuSortBy: string = 'codm';
+  menuSortDir: string = 'asc';
 
-  // Paginación Procesos
+  // paginación procesos
   currentPageProcesos = 0;
   pageSizeProcesos = 3;
+  totalPagesProcesos = 0;
   totalElementsProcesos = 0;
   isFirstProcesos = true;
   isLastProcesos = false;
-  procesosPaginados: Proceso[] = [];
+  procesoSortBy: string = 'codp';
+  procesoSortDir: string = 'asc';
 
-  ngOnInit(): void {
-    this.actualizarPaginacionMenus();
-    this.actualizarPaginacionProcesos();
+  // servicios
+  menuProcesoService = inject(MenuProcesoService);
+  menuService = inject(MenuService);
+  procesoService = inject(ProcesoService);
+  private cdr = inject(ChangeDetectorRef);
+
+  constructor() {
+    this.getMenus();
+    this.getProcesos();
   }
 
-  // ==================== MÉTODOS MENÚS ====================
+  // === llamadas al backend ===
+  getMenus(): void {
+    this.menuService.getMenusPaginadosDto(
+      this.currentPageMenus,
+      this.pageSizeMenus,
+      this.menuSortBy,
+      this.menuSortDir
+    ).subscribe({
+      next: (response) => {
+        this.listMenus = response.content;
+        this.totalPagesMenus = response.totalPages;
+        this.totalElementsMenus = response.totalElements;
+        this.isFirstMenus = response.first;
+        this.isLastMenus = response.last;
+        this.cdr.detectChanges();
+        console.log('Página recibida de menus:', response);
+      },
+      error: (err) => console.error('Error al obtener menus', err),
+    });
+  }
 
+  getProcesos(): void {
+    this.procesoService.getProcesosPaginados(
+      this.currentPageProcesos,
+      this.pageSizeProcesos,
+      this.procesoSortBy,
+      this.procesoSortDir
+    ).subscribe({
+      next: (response) => {
+        this.listProcesos = response.content || [];
+        this.totalPagesProcesos = response.totalPages ?? 0;
+        this.totalElementsProcesos = response.totalElements ?? 0;
+        this.isFirstProcesos = response.first ?? (this.currentPageProcesos === 0);
+        this.isLastProcesos = response.last ?? (this.currentPageProcesos >= (this.totalPagesProcesos - 1));
+        this.cdr.detectChanges();
+        console.log('Página recibida de procesos:', response);
+      },
+      error: (err) => console.error('Error al obtener procesos', err),
+    });
+  }
+
+  // === trackBy para ngFor ===
+  trackByCodm(index: number, item: MenuDto) {
+    return item.codm;
+  }
+
+  // === selección menú ===
   seleccionarMenu(codm: number): void {
     this.menuSeleccionado = codm;
-    this.procesosSeleccionados.clear();
-    this.todosProcesosMarcados = false;
-    this.actualizarPaginacionProcesos();
+
+    setTimeout(() => {
+      this.estadoSeleccionado = 'menu';
+      this.filtrarByEstado('menu');
+    }, 100);
   }
 
-  actualizarPaginacionMenus(): void {
-    const menusFiltrados = this.listMenus.filter(menu =>
-      menu.nombre.toLowerCase().includes(this.filtroMenu.toLowerCase())
-    );
-
-    this.totalElementsMenus = menusFiltrados.length;
-    const inicio = this.currentPageMenus * this.pageSizeMenus;
-    const fin = inicio + this.pageSizeMenus;
-    this.menusPaginados = menusFiltrados.slice(inicio, fin);
-
-    this.isFirstMenus = this.currentPageMenus === 0;
-    this.isLastMenus = fin >= this.totalElementsMenus;
-  }
-
-  cambiarPaginaMenus(page: number): void {
-    this.currentPageMenus = page;
-    this.actualizarPaginacionMenus();
-  }
-
-  cambiarPageSizeMenus(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.pageSizeMenus = parseInt(select.value);
-    this.currentPageMenus = 0;
-    this.actualizarPaginacionMenus();
-  }
-
-  // ==================== MÉTODOS PROCESOS ====================
-
+  // === toggle procesos seleccionados ===
   toggleSeleccionProceso(codp: number): void {
     if (this.procesosSeleccionados.has(codp)) {
       this.procesosSeleccionados.delete(codp);
     } else {
       this.procesosSeleccionados.add(codp);
     }
-    this.actualizarTodosProcesosMarcados();
+    this.cdr.detectChanges();
   }
 
-  toggleTodosProcesos(event: Event): void {
-    const checkbox = event.target as HTMLInputElement;
-    if (checkbox.checked) {
-      this.procesosPaginados.forEach(proceso => this.procesosSeleccionados.add(proceso.codp));
-    } else {
-      this.procesosPaginados.forEach(proceso => this.procesosSeleccionados.delete(proceso.codp));
+  // paginación menús
+  cambiarPaginaMenus(page: number): void {
+    if (page >= 0 && page < this.totalPagesMenus) {
+      this.currentPageMenus = page;
+      this.getMenus();
     }
-    this.actualizarTodosProcesosMarcados();
   }
 
-  actualizarTodosProcesosMarcados(): void {
-    this.todosProcesosMarcados = this.procesosPaginados.length > 0 &&
-      this.procesosPaginados.every(proceso => this.procesosSeleccionados.has(proceso.codp));
+  cambiarPageSizeMenus(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    this.pageSizeMenus = parseInt(target.value, 10);
+    this.currentPageMenus = 0;
+    this.getMenus();
   }
 
-  actualizarPaginacionProcesos(): void {
-    let procesosFiltrados = this.listProcesos.filter(proceso =>
-      proceso.nombre.toLowerCase().includes(this.filtroProceso.toLowerCase())
-    );
-
-    // Aplicar filtro de asignación
-    if (this.menuSeleccionado) {
-      if (this.filtroAsignacion === 'asignados') {
-        procesosFiltrados = procesosFiltrados.filter(proceso =>
-          this.esProcesoAsignado(proceso.codp)
-        );
-      } else if (this.filtroAsignacion === 'noAsignados') {
-        procesosFiltrados = procesosFiltrados.filter(proceso =>
-          !this.esProcesoAsignado(proceso.codp)
-        );
-      }
-    }
-
-    this.totalElementsProcesos = procesosFiltrados.length;
-    const inicio = this.currentPageProcesos * this.pageSizeProcesos;
-    const fin = inicio + this.pageSizeProcesos;
-    this.procesosPaginados = procesosFiltrados.slice(inicio, fin);
-
-    this.isFirstProcesos = this.currentPageProcesos === 0;
-    this.isLastProcesos = fin >= this.totalElementsProcesos;
-
-    this.actualizarTodosProcesosMarcados();
-  }
-
+  // paginación procesos
   cambiarPaginaProcesos(page: number): void {
-    this.currentPageProcesos = page;
-    this.actualizarPaginacionProcesos();
+    if (page >= 0 && page < this.totalPagesProcesos) {
+      this.currentPageProcesos = page;
+      this.getProcesos();
+    }
   }
 
   cambiarPageSizeProcesos(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.pageSizeProcesos = parseInt(select.value);
+    const target = event.target as HTMLSelectElement;
+    this.pageSizeProcesos = parseInt(target.value, 10);
     this.currentPageProcesos = 0;
-    this.actualizarPaginacionProcesos();
+    this.getProcesos();
   }
 
-  esProcesoAsignado(codp: number): boolean {
-    if (!this.menuSeleccionado) return false;
-    return this.menuProcesos.some(mp => mp.codm === this.menuSeleccionado && mp.codp === codp);
-  }
-
-  // ==================== MÉTODOS DE ASIGNACIÓN ====================
-
-  asignarProcesosAMenu(): void {
+  asignarProcesosAMenu() {
     if (!this.menuSeleccionado || this.procesosSeleccionados.size === 0) {
       console.log('Debe seleccionar un menú y al menos un proceso');
       return;
     }
 
-    this.procesosSeleccionados.forEach(codp => {
-      // Verificar si ya existe la asignación
-      const existe = this.menuProcesos.some(mp => mp.codm === this.menuSeleccionado && mp.codp === codp);
-      if (!existe) {
-        this.menuProcesos.push({
-          codm: this.menuSeleccionado!,
-          codp: codp
+    const dto: AsignarProcesosMenuDTO = {
+      menuId: this.menuSeleccionado,
+      procesosIds: Array.from(this.procesosSeleccionados)
+    };
+
+    this.menuProcesoService.asignarProcesos(dto).subscribe({
+      next: () => {
+        Swal.fire(
+          '¡Éxito!',
+          'Procesos asignados correctamente.',
+          'success'
+        );
+      },
+      error: (err) => {
+        console.error("Error asignando procesos:", err);
+        Swal.fire('Error', 'Fallo al asignar procesos al menú.', 'error');
+      }
+    });
+  }
+
+  limpiarSeleccion() {
+    this.menuSeleccionado = null;
+    this.procesosSeleccionados.clear();
+  }
+
+  desasignarProcesosAMenu() {
+    if (!this.menuSeleccionado || this.procesosSeleccionados.size === 0) {
+      console.log('Debe seleccionar un menú y al menos un proceso');
+      return;
+    }
+
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "Vas a desasignar los procesos seleccionados del menú",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, desasignar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+
+        const dto: AsignarProcesosMenuDTO = {
+          menuId: this.menuSeleccionado!,
+          procesosIds: Array.from(this.procesosSeleccionados)
+        };
+
+        this.menuProcesoService.desasignarProcesos(dto).subscribe({
+          next: () => {
+            Swal.fire(
+              '¡Éxito!',
+              'Procesos desasignados correctamente.',
+              'success'
+            );
+            this.limpiarSeleccion();
+          },
+          error: (err) => {
+            console.error("Error desasignando procesos:", err);
+            Swal.fire('Error', 'Fallo al desasignar procesos del menú.', 'error');
+          }
         });
       }
     });
-
-    console.log('Procesos asignados correctamente');
-    console.log('Relaciones actuales:', this.menuProcesos);
-    
-    this.procesosSeleccionados.clear();
-    this.todosProcesosMarcados = false;
-    this.actualizarPaginacionProcesos();
   }
 
-  desasignarProcesos(): void {
-    if (!this.menuSeleccionado || this.procesosSeleccionados.size === 0) {
-      console.log('Debe seleccionar un menú y al menos un proceso');
-      return;
-    }
-
-    this.procesosSeleccionados.forEach(codp => {
-      const index = this.menuProcesos.findIndex(mp => mp.codm === this.menuSeleccionado && mp.codp === codp);
-      if (index !== -1) {
-        this.menuProcesos.splice(index, 1);
+  onEnterFiltroProceso(valor: string) {
+    this.procesoService.buscarProcesos(valor).subscribe({
+      next: (procesos) => {
+        this.listProcesos = procesos;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al buscar procesos:', error);
       }
     });
+  }
 
-    console.log('Procesos desasignados correctamente');
-    console.log('Relaciones actuales:', this.menuProcesos);
-    
-    this.procesosSeleccionados.clear();
-    this.todosProcesosMarcados = false;
-    this.actualizarPaginacionProcesos();
+  onEnterFiltroMenu(valor: string) {
+    this.menuService.buscarMenus(valor).subscribe({
+      next: (menus) => {
+        this.listMenus = menus;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al buscar menus:', error);
+      }
+    });
+  }
+
+  filtrarByEstado(estado: EstadoFiltro): void {
+    this.estadoSeleccionado = estado;
+    this.errorMessage = '';
+
+    switch (estado) {
+      case 'todos':
+        this.getProcesos();
+        break;
+
+      case 'asignados':
+        this.getProcesosAsignados();
+        break;
+
+      case 'noasignados':
+        this.getProcesosNoAsignados();
+        break;
+
+      case 'menu':
+        if (this.menuSeleccionado) {
+          this.getProcesosByMenu(this.menuSeleccionado);
+        } else {
+          this.errorMessage = 'Por favor, seleccione un menú primero';
+        }
+        break;
+
+      default:
+        this.getProcesos();
+    }
+  }
+
+  isProcesoMarcado(codp: number): boolean {
+    return this.procesosMenuSeleccionado.includes(codp);
+  }
+
+  private getProcesosAsignados(): void {
+    this.menuProcesoService.getProcesosAssignedToAnyMenu().subscribe({
+      next: (data) => {
+        this.listProcesos = data;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.errorMessage = 'Error al cargar los procesos asignados';
+      }
+    });
+  }
+
+  private getProcesosNoAsignados(): void {
+    this.menuProcesoService.getUnassignedProcesos().subscribe({
+      next: (data) => {
+        this.listProcesos = data;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.errorMessage = 'Error al cargar los procesos no asignados';
+      }
+    });
+  }
+
+  private getProcesosByMenu(codm: number): void {
+    this.menuProcesoService.getProcesosForMenu(codm).subscribe({
+      next: (data) => {
+        this.listProcesos = data;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.errorMessage = `Error al cargar los procesos del menú ${codm}`;
+      }
+    });
+  }
+
+  trackByCodp(index: number, proceso: ProcesoDto): number {
+    return proceso.codp;
+  }
+
+  esProcesoDelMenu(codp: number): boolean {
+    return this.procesosDelMenu.has(codp);
   }
 }

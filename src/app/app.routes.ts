@@ -11,6 +11,8 @@ import { MENU_ROUTES } from './bussines/menus/routes/menu.route';
 import { PRO_MENU_ROUTES } from './bussines/procesos-menus/routes/pro.menu.route';
 import { ROL_USU_ROUTES } from './bussines/roles-usuarios/routes/rol.usu.route';
 import { MENU_ROL_ROUTES } from './bussines/menus-roles/routes/menu-rol-route';
+import { PARALELO_ROUTES } from './bussines/paralelos/routes/paralelo.route';
+import { MATERIAS_ROUTES } from './bussines/materias/routes/materia.route';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -37,6 +39,8 @@ export const routes: Routes = [
   ...PRO_MENU_ROUTES,
   ...ROL_USU_ROUTES,
   ...MENU_ROL_ROUTES,
+  ...PARALELO_ROUTES,
+  ...MATERIAS_ROUTES,
 
   { path: 'contactos', component: ContactosPageComponent },
   { path: 'gestion-usuarios', component: GestionarUsuariosPageComponent },

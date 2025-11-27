@@ -1,9 +1,15 @@
-interface Menu {
+export interface Menu {
   codm: number;
   nombre: string;
 }
 
-interface Proceso {
+export interface MenuDto {
+  codm: number;
+  nombre: string;
+  estado: number;
+}
+
+export interface Proceso {
   codp: number;
   nombre: string;
   enlace: string;
@@ -11,7 +17,21 @@ interface Proceso {
   estado: number;
 }
 
-interface MenuProceso {
+
+export interface ProcesoDto {
+  codp: number;
+  nombre: string;
+  enlace: string;
+  ayuda: string;
+  estado: number;
+}
+
+export interface MenuProceso {
   codm: number;
   codp: number;
+}
+
+export interface AsignarProcesosMenuDTO {
+  menuId: number;
+  procesosIds: number[];
 }

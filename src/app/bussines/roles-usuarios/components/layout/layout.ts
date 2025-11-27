@@ -7,6 +7,8 @@ import { UsuariosService } from '../../../../dashboard/services/usuarios-dash.se
 import { RoleService } from '../../../roles/services/rol.service';
 import { RolDto } from '../../../roles/models/rol.model';
 import { NotificationService } from '../../../../core/service/notificacion.service';
+import { Notificacion } from '../../../../core/models/notificacion.model';
+import Swal from 'sweetalert2';
 
 type EstadoFiltro = 'todos' | 'asignados' | 'noasignados' | 'usuario';
 
@@ -21,10 +23,12 @@ export default class Layout {
   // listas
   listUsuarios: UsuarioPageDto[] = [];
   listRoles: RolDto[] = [];
+  private contadorId = 1;
+  notificaciones: Notificacion[] = [];
 
   estadoSeleccionado: EstadoFiltro = 'todos';
   errorMessage = '';
-    rolesDelUsuario = new Set<number>(); // IDs de roles que pertenecen al usuario seleccionado
+  rolesDelUsuario = new Set<number>(); // IDs de roles que pertenecen al usuario seleccionado
   rolesUsuarioSeleccionado: number[] = []; // IDs de roles del usuario seleccionado
 
   // selecciones y relaciones
@@ -111,11 +115,11 @@ export default class Layout {
     return item.login;
   }
 
- 
+
 
   // === selección usuario ===
   seleccionarUsuario(login: string): void {
-  this.usuarioSeleccionado = login;
+    this.usuarioSeleccionado = login;
     // Luego marcar los del usuario
     setTimeout(() => {
       this.estadoSeleccionado = 'usuario';
@@ -170,9 +174,9 @@ export default class Layout {
 
   asignarRolesAUsuario() {
     if (!this.usuarioSeleccionado || this.rolesSeleccionados.size === 0) {
-    console.log('Debe seleccionar un usuario y al menos un rol');
-    return;
-  }
+      console.log('Debe seleccionar un usuario y al menos un rol');
+      return;
+    }
     const dto: AsignarRolesUsuarioDTO = {
       usuarioId: this.usuarioSeleccionado,
       rolesIds: Array.from(this.rolesSeleccionados)
@@ -180,29 +184,67 @@ export default class Layout {
 
     this.usuarioRolService.asignarRoles(dto).subscribe({
       next: () => {
-        console.log('asignado correctamente')
-        // Mostrar notificación de éxito
-        this.notificationService.showSuccess(
-          '¡Éxito!',
-          'Los roles han sido asignados correctamente'
+        console.log("Roles asignados correctamente");
+        Swal.fire(
+          '¡Exito!',
+          `Roles asignados correctamente.`,
+          'success'
         );
       },
       error: (err) => {
-        // Mostrar notificación de error
-        this.notificationService.showError(
-          'Error',
-          'Hubo un problema al asignar los roles. Por favor, inténtalo de nuevo.'
-        );
         console.error("Error asignando roles:", err);
+        // ❌ LLAMAR NOTIFICACIÓN DE ERROR
+        Swal.fire('Error', 'Fallo al asignar roles al usuario.', 'error');
       }
     });
   }
 
-
-  desasignarRoles(): void {
-    // implementa según tu endpoint
+  // Método opcional para limpiar selección
+  limpiarSeleccion() {
+    this.usuarioSeleccionado = null;
+    this.rolesSeleccionados.clear();
   }
+  desasignarRolesAUsuario() {
+    if (!this.usuarioSeleccionado || this.rolesSeleccionados.size === 0) {
+      console.log('Debe seleccionar un usuario y al menos un rol');
+      return;
+    }
 
+    // Confirmación antes de desasignar
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "Vas a desasignar los roles seleccionados del usuario",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, desasignar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const dto: AsignarRolesUsuarioDTO = {
+          usuarioId: this.usuarioSeleccionado!,
+          rolesIds: Array.from(this.rolesSeleccionados)
+        };
+
+        this.usuarioRolService.desasignarRoles(dto).subscribe({
+          next: () => {
+            console.log("Roles desasignados correctamente");
+            Swal.fire(
+              '¡Éxito!',
+              `Roles desasignados correctamente.`,
+              'success'
+            );
+            this.limpiarSeleccion();
+          },
+          error: (err) => {
+            console.error("Error desasignando roles:", err);
+            Swal.fire('Error', 'Fallo al desasignar roles al usuario.', 'error');
+          }
+        });
+      }
+    });
+  }
   onEnterFiltroRol(valor: string) {
     this.rolService.buscarRoles(valor).subscribe({
       next: (roles) => {
@@ -261,7 +303,7 @@ export default class Layout {
     }
   }
 
- // Verificar si un rol está seleccionado/marcado
+  // Verificar si un rol está seleccionado/marcado
   isRolMarcado(codr: number): boolean {
     return this.rolesUsuarioSeleccionado.includes(codr);
   }
@@ -281,7 +323,7 @@ export default class Layout {
     });
   }
 
-  // Obtener roles NO asignados a ningún usuario
+   // Obtener roles NO asignados a ningún usuario
   private getRolesNoAsignados(): void {
     this.usuarioRolService.getUnassignedRoles().subscribe({
       next: (data) => {

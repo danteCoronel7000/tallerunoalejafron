@@ -1,6 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Notificacion } from '../../../../core/models/notificacion.model';
+import { MenuRolService } from '../../services/menu.rol.service';
+import { RoleService } from '../../../roles/services/rol.service';
+import { MenuService } from '../../../menus/services/menu.service';
+import { RolDto } from '../../../roles/models/rol.model';
+import Swal from 'sweetalert2';
+
+type EstadoFiltro = 'todos' | 'asignados' | 'noasignados' | 'rol';
 
 @Component({
   selector: 'app-layoutmr',
@@ -9,223 +17,348 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './layoutmr.css'
 })
 export default class Layoutmr {
-  // Datos ficticios - Roles
-  listRoles: Rol[] = [
-    { codr: 1, nombre: 'Administrador', estado: '1' },
-    { codr: 2, nombre: 'Supervisor', estado: '1' },
-    { codr: 3, nombre: 'Usuario', estado: '1' },
-    { codr: 4, nombre: 'Invitado', estado: '1' },
-    { codr: 5, nombre: 'Auditor', estado: '0' },
-    { codr: 6, nombre: 'Desarrollador', estado: '1' },
-    { codr: 7, nombre: 'Analista', estado: '1' }
-  ];
+  
+  // listas
+  listRoles: RolDto[] = [];
+  listMenus: MenuDto[] = [];
+  private contadorId = 1;
+  notificaciones: Notificacion[] = [];
 
-  // Datos ficticios - Menús
-  listMenus: Menu[] = [
-    { codm: 1, nombre: 'Dashboard' },
-    { codm: 2, nombre: 'Administración' },
-    { codm: 3, nombre: 'Reportes' },
-    { codm: 4, nombre: 'Configuración' },
-    { codm: 5, nombre: 'Usuarios' },
-    { codm: 6, nombre: 'Ventas' },
-    { codm: 7, nombre: 'Inventario' },
-    { codm: 8, nombre: 'Auditoría' }
-  ];
+  estadoSeleccionado: EstadoFiltro = 'todos';
+  errorMessage = '';
+  menusDelRol = new Set<number>(); // IDs de menus que pertenecen al rol seleccionado
+  menusRolSeleccionado: number[] = []; // IDs de menus del rol seleccionado
 
-  // Relación muchos a muchos - Datos ficticios
-  menuRoles: MenuRol[] = [
-    { codm: 1, codr: 1 },
-    { codm: 2, codr: 1 },
-    { codm: 3, codr: 1 },
-    { codm: 4, codr: 1 },
-    { codm: 1, codr: 2 }
-  ];
-
-  // Filtros
-  filtroRol = '';
-  filtroMenu = '';
-  filtroAsignacion = 'todos'; // 'asignados', 'todos', 'noAsignados'
-
-  // Selección - Roles (Radio Button - Solo uno)
+  // selecciones y relaciones
   rolSeleccionado: number | null = null;
+  menusSeleccionados: Set<number> = new Set<number>();
 
-  // Selección - Menús (Checkboxes - Múltiples)
-  menusSeleccionados = new Set<number>();
-  todosMenusMarcados = false;
-
-  // Paginación Roles
+  // paginación roles
   currentPageRoles = 0;
   pageSizeRoles = 3;
+  totalPagesRoles = 0;
   totalElementsRoles = 0;
   isFirstRoles = true;
   isLastRoles = false;
-  rolesPaginados: Rol[] = [];
+  rolSortBy: string = 'codr';
+  rolSortDir: string = 'asc';
 
-  // Paginación Menús
+  // paginación menus
   currentPageMenus = 0;
   pageSizeMenus = 3;
+  totalPagesMenus = 0;
   totalElementsMenus = 0;
   isFirstMenus = true;
   isLastMenus = false;
-  menusPaginados: Menu[] = [];
+  menuSortBy: string = 'codm';
+  menuSortDir: string = 'asc';
 
-  ngOnInit(): void {
-    this.actualizarPaginacionRoles();
-    this.actualizarPaginacionMenus();
+  // servicios
+  rolMenuService = inject(MenuRolService);
+  rolService = inject(RoleService);
+  menuService = inject(MenuService);
+  private cdr = inject(ChangeDetectorRef);
+
+  constructor() {
+    // no debes depender del constructor para lógica compleja; usamos ngOnInit
+    this.getRoles();
+    this.getMenus();
   }
 
-  // ==================== MÉTODOS ROLES ====================
+  // === llamadas al backend ===
+  getRoles(): void {
+    this.rolService.getRolesPaginadosDto(
+      this.currentPageRoles,
+      this.pageSizeRoles,
+      this.rolSortBy,
+      this.rolSortDir
+    ).subscribe({
+      next: (response) => {
+        this.listRoles = response.content;
+        this.totalPagesRoles = response.totalPages;
+        this.totalElementsRoles = response.totalElements;
+        this.isFirstRoles = response.first;
+        this.isLastRoles = response.last;
+        // si estás en OnPush y no se actualiza la vista:
+        this.cdr.detectChanges();
+        console.log('Página recibida de roles:', response);
+      },
+      error: (err) => console.error('Error al obtener roles', err),
+    });
+  }
 
+  getMenus(): void {
+    this.menuService.getMenusPaginados(
+      this.currentPageMenus,
+      this.pageSizeMenus,
+      this.menuSortBy,
+      this.menuSortDir
+    ).subscribe({
+      next: (response) => {
+        this.listMenus = response.content || [];
+        this.totalPagesMenus = response.totalPages ?? 0;
+        this.totalElementsMenus = response.totalElements ?? 0;
+        this.isFirstMenus = response.first ?? (this.currentPageMenus === 0);
+        this.isLastMenus = response.last ?? (this.currentPageMenus >= (this.totalPagesMenus - 1));
+        this.cdr.detectChanges();
+        console.log('Página recibida de menus:', response);
+      },
+      error: (err) => console.error('Error al obtener menus', err),
+    });
+  }
+
+  // === trackBy para ngFor ===
+  trackByCodr(index: number, item: RolDto) {
+    return item.codr;
+  }
+
+  // === selección rol ===
   seleccionarRol(codr: number): void {
     this.rolSeleccionado = codr;
-    this.menusSeleccionados.clear();
-    this.todosMenusMarcados = false;
-    this.actualizarPaginacionMenus();
+    // Luego marcar los del rol
+    setTimeout(() => {
+      this.estadoSeleccionado = 'rol';
+      this.filtrarByEstado('rol');
+    }, 100);
   }
 
-  actualizarPaginacionRoles(): void {
-    const rolesFiltrados = this.listRoles.filter(rol =>
-      rol.nombre.toLowerCase().includes(this.filtroRol.toLowerCase())
-    );
-
-    this.totalElementsRoles = rolesFiltrados.length;
-    const inicio = this.currentPageRoles * this.pageSizeRoles;
-    const fin = inicio + this.pageSizeRoles;
-    this.rolesPaginados = rolesFiltrados.slice(inicio, fin);
-
-    this.isFirstRoles = this.currentPageRoles === 0;
-    this.isLastRoles = fin >= this.totalElementsRoles;
-  }
-
-  cambiarPaginaRoles(page: number): void {
-    this.currentPageRoles = page;
-    this.actualizarPaginacionRoles();
-  }
-
-  cambiarPageSizeRoles(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.pageSizeRoles = parseInt(select.value);
-    this.currentPageRoles = 0;
-    this.actualizarPaginacionRoles();
-  }
-
-  // ==================== MÉTODOS MENÚS ====================
-
+  // === toggle menus seleccionados (Set) ===
   toggleSeleccionMenu(codm: number): void {
     if (this.menusSeleccionados.has(codm)) {
       this.menusSeleccionados.delete(codm);
     } else {
       this.menusSeleccionados.add(codm);
     }
-    this.actualizarTodosMenusMarcados();
+    // detectChanges en caso de OnPush
+    this.cdr.detectChanges();
   }
 
-  toggleTodosMenus(event: Event): void {
-    const checkbox = event.target as HTMLInputElement;
-    if (checkbox.checked) {
-      this.menusPaginados.forEach(menu => this.menusSeleccionados.add(menu.codm));
-    } else {
-      this.menusPaginados.forEach(menu => this.menusSeleccionados.delete(menu.codm));
+  // === paginación roles: ahora llama a getRoles() ===
+  cambiarPaginaRoles(page: number): void {
+    if (page >= 0 && page < this.totalPagesRoles) {
+      this.currentPageRoles = page;
+      this.getRoles();
     }
-    this.actualizarTodosMenusMarcados();
   }
 
-  actualizarTodosMenusMarcados(): void {
-    this.todosMenusMarcados = this.menusPaginados.length > 0 &&
-      this.menusPaginados.every(menu => this.menusSeleccionados.has(menu.codm));
-  }
-
-  actualizarPaginacionMenus(): void {
-    let menusFiltrados = this.listMenus.filter(menu =>
-      menu.nombre.toLowerCase().includes(this.filtroMenu.toLowerCase())
-    );
-
-    // Aplicar filtro de asignación
-    if (this.rolSeleccionado) {
-      if (this.filtroAsignacion === 'asignados') {
-        menusFiltrados = menusFiltrados.filter(menu =>
-          this.esMenuAsignado(menu.codm)
-        );
-      } else if (this.filtroAsignacion === 'noAsignados') {
-        menusFiltrados = menusFiltrados.filter(menu =>
-          !this.esMenuAsignado(menu.codm)
-        );
-      }
+  cambiarPageSizeRoles(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    if (target) {
+      this.pageSizeRoles = parseInt(target.value, 10);
+      this.currentPageRoles = 0;
+      this.getRoles();
     }
-
-    this.totalElementsMenus = menusFiltrados.length;
-    const inicio = this.currentPageMenus * this.pageSizeMenus;
-    const fin = inicio + this.pageSizeMenus;
-    this.menusPaginados = menusFiltrados.slice(inicio, fin);
-
-    this.isFirstMenus = this.currentPageMenus === 0;
-    this.isLastMenus = fin >= this.totalElementsMenus;
-
-    this.actualizarTodosMenusMarcados();
   }
 
+  // === paginación menus (ya estaba bien, lo dejamos) ===
   cambiarPaginaMenus(page: number): void {
-    this.currentPageMenus = page;
-    this.actualizarPaginacionMenus();
+    if (page >= 0 && page < this.totalPagesMenus) {
+      this.currentPageMenus = page;
+      this.getMenus();
+    }
   }
 
   cambiarPageSizeMenus(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.pageSizeMenus = parseInt(select.value);
-    this.currentPageMenus = 0;
-    this.actualizarPaginacionMenus();
+    const target = event.target as HTMLSelectElement;
+    if (target) {
+      this.pageSizeMenus = parseInt(target.value, 10);
+      this.currentPageMenus = 0;
+      this.getMenus();
+    }
   }
 
-  esMenuAsignado(codm: number): boolean {
-    if (!this.rolSeleccionado) return false;
-    return this.menuRoles.some(mr => mr.codr === this.rolSeleccionado && mr.codm === codm);
-  }
-
-  // ==================== MÉTODOS DE ASIGNACIÓN ====================
-
-  asignarMenusARol(): void {
+  asignarMenusARol() {
     if (!this.rolSeleccionado || this.menusSeleccionados.size === 0) {
-      console.log('Debe seleccionar un rol y al menos un menú');
+      console.log('Debe seleccionar un rol y al menos un menu');
+      return;
+    }
+    const dto: AsignarMenusRolDTO = {
+      rolId: this.rolSeleccionado,
+      menusIds: Array.from(this.menusSeleccionados)
+    };
+
+    console.log('dto de asignar menus rol',dto)
+
+    this.rolMenuService.asignarMenus(dto).subscribe({
+      next: () => {
+        console.log("Menus asignados correctamente");
+        Swal.fire(
+          '¡Exito!',
+          `Menus asignados correctamente.`,
+          'success'
+        );
+      },
+      error: (err) => {
+        console.error("Error asignando menus:", err);
+        // ❌ LLAMAR NOTIFICACIÓN DE ERROR
+        Swal.fire('Error', 'Fallo al asignar menus al rol.', 'error');
+      }
+    });
+  }
+
+  // Método opcional para limpiar selección
+  limpiarSeleccion() {
+    this.rolSeleccionado = null;
+    this.menusSeleccionados.clear();
+  }
+  
+  desasignarMenusARol() {
+    if (!this.rolSeleccionado || this.menusSeleccionados.size === 0) {
+      console.log('Debe seleccionar un rol y al menos un menu');
       return;
     }
 
-    this.menusSeleccionados.forEach(codm => {
-      // Verificar si ya existe la asignación
-      const existe = this.menuRoles.some(mr => mr.codr === this.rolSeleccionado && mr.codm === codm);
-      if (!existe) {
-        this.menuRoles.push({
-          codr: this.rolSeleccionado!,
-          codm: codm
+    // Confirmación antes de desasignar
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "Vas a desasignar los menus seleccionados del rol",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, desasignar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const dto: AsignarMenusRolDTO = {
+          rolId: this.rolSeleccionado!,
+          menusIds: Array.from(this.menusSeleccionados)
+        };
+
+        this.rolMenuService.desasignarMenus(dto).subscribe({
+          next: () => {
+            console.log("Menus desasignados correctamente");
+            Swal.fire(
+              '¡Éxito!',
+              `Menus desasignados correctamente.`,
+              'success'
+            );
+            this.limpiarSeleccion();
+          },
+          error: (err) => {
+            console.error("Error desasignando menus:", err);
+            Swal.fire('Error', 'Fallo al desasignar menus al rol.', 'error');
+          }
         });
       }
     });
-
-    console.log('Menús asignados correctamente');
-    console.log('Relaciones actuales:', this.menuRoles);
-    
-    this.menusSeleccionados.clear();
-    this.todosMenusMarcados = false;
-    this.actualizarPaginacionMenus();
   }
-
-  desasignarMenus(): void {
-    if (!this.rolSeleccionado || this.menusSeleccionados.size === 0) {
-      console.log('Debe seleccionar un rol y al menos un menú');
-      return;
-    }
-
-    this.menusSeleccionados.forEach(codm => {
-      const index = this.menuRoles.findIndex(mr => mr.codr === this.rolSeleccionado && mr.codm === codm);
-      if (index !== -1) {
-        this.menuRoles.splice(index, 1);
+  
+  onEnterFiltroMenu(valor: string) {
+    this.menuService.buscarMenus(valor).subscribe({
+      next: (menus) => {
+        this.listMenus = menus
+        this.cdr.detectChanges(); // fuerza renderizado
+      },
+      error: (error) => {
+        console.error('Error al buscar menus:', error);
       }
     });
+  }
 
-    console.log('Menús desasignados correctamente');
-    console.log('Relaciones actuales:', this.menuRoles);
-    
-    this.menusSeleccionados.clear();
-    this.todosMenusMarcados = false;
-    this.actualizarPaginacionMenus();
+  onEnterFiltroRol(valor: string) {
+    console.log("valor:::: ", valor)
+    this.rolMenuService.buscarRoles(valor).subscribe({
+      next: (roles) => {
+        this.listRoles = roles; // fuerza cambio
+        console.log('roles busc: ', roles)
+        console.log('roles busc: ', this.listRoles)
+        this.cdr.detectChanges(); // fuerza renderizado
+      },
+      error: (error) => {
+        console.error('Error al buscar roles:', error);
+      }
+    });
+  }
+
+  // Método principal mejorado con switch
+  filtrarByEstado(estado: EstadoFiltro): void {
+    this.estadoSeleccionado = estado;
+    this.errorMessage = '';
+
+    switch (estado) {
+      case 'todos':
+        this.getMenus();
+        break;
+
+      case 'asignados':
+        this.getMenusAsignados();
+        break;
+
+      case 'noasignados':
+        this.getMenusNoAsignados();
+        break;
+
+      case 'rol':
+        if (this.rolSeleccionado) {
+          this.getMenusByRol(this.rolSeleccionado);
+        } else {
+          this.errorMessage = 'Por favor, seleccione un rol primero';
+        }
+        break;
+
+      default:
+        this.getMenus();
+    }
+  }
+
+  // Verificar si un menu está seleccionado/marcado
+  isMenuMarcado(codm: number): boolean {
+    return this.menusRolSeleccionado.includes(codm);
+  }
+
+  // Obtener menus asignados a cualquier rol
+  private getMenusAsignados(): void {
+    this.rolMenuService.getMenusAssignedToAnyRol().subscribe({
+      next: (data) => {
+        this.listMenus = data;
+        console.log('obtenidos asignados:', data);
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al obtener menus asignados:', error);
+        this.errorMessage = 'Error al cargar los menus asignados';
+      }
+    });
+  }
+
+   // Obtener menus NO asignados a ningún rol
+  private getMenusNoAsignados(): void {
+    this.rolMenuService.getUnassignedMenus().subscribe({
+      next: (data) => {
+        this.listMenus = data;
+        console.log('obtenidos NO asignado :', data);
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al obtener menus no asignados:', error);
+        this.errorMessage = 'Error al cargar los menus no asignados';
+      }
+    });
+  }
+
+  // Obtener menus de un rol específico
+  private getMenusByRol(codr: number): void {
+    this.rolMenuService.getMenusForRol(codr).subscribe({
+      next: (data) => {
+        this.listMenus = data;
+        console.log('obtenidos asignado a rol:', data);
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al obtener menus del rol:', error);
+        this.errorMessage = `Error al cargar los menus del rol ${codr}`;
+      }
+    });
+  }
+
+  // TrackBy para optimizar el renderizado
+  trackByCodm(index: number, menu: MenuDto): number {
+    return menu.codm;
+  }
+
+  // Verificar si un menu pertenece al rol seleccionado
+  esMenuDelRol(codm: number): boolean {
+    return this.menusDelRol.has(codm);
   }
 }

@@ -28,6 +28,7 @@ export interface MenuDto {
     estado: number;
 }
 
+
 export interface UpdateMenuRequest {
   nombre: string; // Si el backend espera "nombre" en lugar de "name"
 }
