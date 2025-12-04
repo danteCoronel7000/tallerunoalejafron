@@ -84,4 +84,6 @@ export class MateriaService {
   getMateriasPorEstado(estado: string): Observable<MateriaDto[]> {
     return this.http.get<MateriaDto[]>(`${this.apiUrl}/estado/${estado}`);
   }
+
+  
 }

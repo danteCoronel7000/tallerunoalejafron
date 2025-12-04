@@ -1,14 +1,9 @@
 <footer class="bg-blue-950 text-white p-2 fixed bottom-0 left-0 right-0 shadow-lg z-10">
-  <div
-    class="mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center text-sm"
-  >
+  <div class="mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center text-sm">
     <div class="flex items-center space-x-2">
       <div class="avatar">
         <div class="mask mask-hexagon-2 w-8 h-8">
-          <img
-            src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-            alt="Avatar usuario"
-          />
+          <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" alt="Avatar usuario" />
         </div>
       </div>
       <span class="font-semibold text-white"> Usuario: </span>
@@ -17,7 +12,13 @@
       </span>
     </div>
 
-    <span class="text-center text-gray-400"> &copy; Derechos de Autor </span>
+    <span class="text-center text-gray-400">
+      <button (click)="token()">
+        Token
+      </button>
+    </span>
+
+    <!--<span class="text-center text-gray-400"> &copy; Derechos de Autor </span>-->
 
     <div class="flex items-center space-x-4">
       <span class="margin-derecha">
@@ -26,22 +27,13 @@
       </span>
 
       @if (authService.usuario()) {
-      <a
-        (click)="logout()"
-        routerLink="/"
-        style="cursor: pointer"
-        type="button"
-        class="py-1 px-3 border border-white text-white rounded-md hover:bg-blue-900 transition duration-150 ease-in-out"
-      >
+      <a (click)="logout()" routerLink="/" style="cursor: pointer" type="button"
+        class="py-1 px-3 border border-white text-white rounded-md hover:bg-blue-900 transition duration-150 ease-in-out">
         Desconectar
       </a>
       } @else {
-      <a
-        routerLink="/auth/login"
-        style="cursor: pointer"
-        type="button"
-        class="py-1 px-3 border border-white text-white rounded-md hover:bg-blue-900 transition duration-150 ease-in-out"
-      >
+      <a routerLink="/auth/login" style="cursor: pointer" type="button"
+        class="py-1 px-3 border border-white text-white rounded-md hover:bg-blue-900 transition duration-150 ease-in-out">
         Conectar
       </a>
       }

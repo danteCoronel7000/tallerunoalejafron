@@ -1,120 +1,64 @@
 <div class="modal modal-open">
   <div class="modal-box w-full max-w-6xl bg-white shadow-2xl rounded-xl p-8">
     <div class="flex justify-between items-center mb-6 border-b pb-4">
-      <h2 class="text-2xl font-bold text-gray-800">Adicionar Nueva Persona</h2>
-
-      <button
-        type="button"
-        class="btn btn-sm btn-circle btn-ghost text-gray-400 hover:text-gray-700"
-        (click)="onClose()"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          />
+      <h2 class="text-2xl font-bold text-gray-800">
+        Adicionar Nueva Persona</h2>
+      <!--<h2 class="text-2xl font-bold text-gray-800">
+            {{ modoEdicion ? 'Modificar Persona' : 'Adicionar Nueva Persona' }}
+          </h2>-->
+      <button type="button" class="btn btn-sm btn-circle btn-ghost text-gray-400 hover:text-gray-700"
+        (click)="onClose()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
     </div>
 
     <form [formGroup]="myForm" (ngSubmit)="onSubmit()">
-      <div
-        formGroupName="personal"
-        class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mb-6"
-      >
+      <div formGroupName="personal" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mb-6">
         <div formGroupName="datos" class="form-control w-full">
           <div formGroupName="id">
             <label class="label pt-0 pb-1">
-              <span class="label-text font-medium text-sm text-gray-700"
-                >Cedula</span
-              >
+              <span class="label-text font-medium text-sm text-gray-700">Cedula</span>
             </label>
-            <input
-              type="text"
-              class="input input-bordered input-sm w-full"
-              formControlName="cedula"
-              required
-            />
+            <input type="text" class="input input-bordered input-sm w-full" formControlName="cedula" required />
           </div>
         </div>
 
         <div class="form-control w-full">
           <label class="label pt-0 pb-1">
-            <span class="label-text font-medium text-sm text-gray-700"
-              >Nombre</span
-            >
+            <span class="label-text font-medium text-sm text-gray-700">Nombre</span>
           </label>
-          <input
-            type="text"
-            class="input input-bordered input-sm w-full"
-            formControlName="nombre"
-            required
-          />
+          <input type="text" class="input input-bordered input-sm w-full" formControlName="nombre" required />
         </div>
 
         <div class="form-control w-full">
           <label class="label pt-0 pb-1">
-            <span class="label-text font-medium text-sm text-gray-700"
-              >Ap. Paterno</span
-            >
+            <span class="label-text font-medium text-sm text-gray-700">Ap. Paterno</span>
           </label>
-          <input
-            type="text"
-            class="input input-bordered input-sm w-full"
-            formControlName="ap"
-            required
-          />
+          <input type="text" class="input input-bordered input-sm w-full" formControlName="ap" required />
         </div>
 
         <div class="form-control w-full">
           <label class="label pt-0 pb-1">
-            <span class="label-text font-medium text-sm text-gray-700"
-              >Ap. Materno</span
-            >
+            <span class="label-text font-medium text-sm text-gray-700">Ap. Materno</span>
           </label>
-          <input
-            type="text"
-            class="input input-bordered input-sm w-full"
-            formControlName="am"
-            required
-          />
+          <input type="text" class="input input-bordered input-sm w-full" formControlName="am" required />
         </div>
 
         <div class="form-control w-full">
           <label class="label pt-0 pb-1">
-            <span class="label-text font-medium text-sm text-gray-700"
-              >Género</span
-            >
+            <span class="label-text font-medium text-sm text-gray-700">Género</span>
           </label>
           <div class="flex items-center gap-6 pt-1">
             <label class="label cursor-pointer p-0">
-              <input
-                type="radio"
-                value="M"
-                name="genero"
-                class="radio radio-primary radio-sm"
-                formControlName="genero"
-                required
-              />
+              <input type="radio" value="M" name="genero" class="radio radio-primary radio-sm" formControlName="genero"
+                required />
               <span class="label-text ml-2 text-gray-700">Masculino</span>
             </label>
             <label class="label cursor-pointer p-0">
-              <input
-                type="radio"
-                value="F"
-                name="genero"
-                class="radio radio-primary radio-sm"
-                formControlName="genero"
-                required
-              />
+              <input type="radio" value="F" name="genero" class="radio radio-primary radio-sm" formControlName="genero"
+                required />
               <span class="label-text ml-2 text-gray-700">Femenino</span>
             </label>
           </div>
@@ -122,21 +66,13 @@
 
         <div class="form-control w-full">
           <label class="label pt-0 pb-1">
-            <span class="label-text font-medium text-sm text-gray-700"
-              >Estado Civil</span
-            >
+            <span class="label-text font-medium text-sm text-gray-700">Estado Civil</span>
           </label>
           <div class="flex items-center gap-4 pt-1">
             @for (e of estadosCivil; track e.key) {
             <label class="label cursor-pointer p-0">
-              <input
-                type="radio"
-                [value]="e.key"
-                name="ecivil"
-                class="radio radio-primary radio-sm"
-                formControlName="ecivil"
-                required
-              />
+              <input type="radio" [value]="e.key" name="ecivil" class="radio radio-primary radio-sm"
+                formControlName="ecivil" required />
               <span class="label-text ml-2 text-gray-700">{{ e.value }}</span>
             </label>
             }
@@ -145,28 +81,16 @@
 
         <div class="form-control w-full">
           <label class="label pt-0 pb-1">
-            <span class="label-text font-medium text-sm text-gray-700"
-              >F. Nacimiento</span
-            >
+            <span class="label-text font-medium text-sm text-gray-700">F. Nacimiento</span>
           </label>
-          <input
-            type="date"
-            class="input input-bordered input-sm w-full"
-            formControlName="fnac"
-            required
-          />
+          <input type="date" class="input input-bordered input-sm w-full" formControlName="fnac" required />
         </div>
 
         <div class="form-control w-full">
           <label class="label pt-0 pb-1">
-            <span class="label-text font-medium text-sm text-gray-700"
-              >Tipo Personal</span
-            >
+            <span class="label-text font-medium text-sm text-gray-700">Tipo Personal</span>
           </label>
-          <select
-            class="select select-bordered select-sm w-full"
-            formControlName="tipo"
-          >
+          <select class="select select-bordered select-sm w-full" formControlName="tipo">
             <option value="" disabled selected>Seleccione</option>
             @for (t of tiposPersonal; track t.key) {
             <option [value]="t.key">{{ t.value }}</option>
@@ -176,34 +100,22 @@
 
         <div class="form-control w-full">
           <label class="label pt-0 pb-1">
-            <span class="label-text font-medium text-sm text-gray-700"
-              >Foto</span
-            >
+            <span class="label-text font-medium text-sm text-gray-700">Foto</span>
           </label>
 
           <div class="flex items-center gap-2">
-            <input
-              type="file"
-              class="input input-bordered input-sm w-full flex-grow"
-              formControlName="foto"
-            />
+            <input type="file" class="input input-bordered input-sm w-full flex-grow" formControlName="foto" />
           </div>
         </div>
       </div>
 
       <div class="md:col-span-2 flex justify-end mt-6 gap-4 border-t pt-4">
-        <button
-          type="button"
-          class="btn btn-ghost text-gray-600 hover:bg-gray-100 px-6"
-          (click)="onClose()"
-        >
+        <button type="button" class="btn btn-ghost text-gray-600 hover:bg-gray-100 px-6" (click)="onClose()">
           Cancelar
         </button>
-        <button
-          type="submit"
+        <button type="submit"
           class="px-6 rounded-lg font-bold text-lg transition duration-200 text-white bg-blue-950 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-950 focus:ring-opacity-40 disabled:bg-gray-400 disabled:cursor-not-allowed"
-          [disabled]="myForm.invalid"
-        >
+          [disabled]="myForm.invalid">
           Guardar
         </button>
       </div>

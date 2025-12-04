@@ -29,4 +29,14 @@ export class FooterPageComponent implements OnInit, OnDestroy {
   logout(): void {
     this.authService.logout();
   }
+
+  token(): void {
+  const token = this.authService.token; 
+  if (!token) {
+    alert("logueate primero para ver el token");
+    return;
+  }
+  alert("Este es el token: " + token);
 }
+}
+

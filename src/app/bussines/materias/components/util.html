@@ -1,0 +1,36 @@
+<!-- Tabla de Materias con Scroll limitado a 4 filas -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 flex flex-col overflow-hidden">
+            <!-- Contenedor con altura fija para 4 filas + scroll interno -->
+            <div class="h-[38vh] overflow-y-auto">
+                <table class="w-full">
+                    <thead class="bg-gradient-to-r from-[#2d14ee] to-[#6146f2] sticky top-0 z-10">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-white">
+                                Nombre de la Materia
+                            </th>
+                            <th class="px-6 py-4 text-center text-sm font-semibold text-white">
+                                Estado
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @for (materia of listMaterias(); track materia.codmat) {
+                        <tr
+                            class="hover:bg-gradient-to-r hover:from-[#ffdeff]/20 hover:to-[#caabfb]/20 transition-all duration-200">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-800">
+                                {{ materia.nombre }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span
+                                    [class]="materia.estado === 1 
+                                        ? 'inline-flex px-4 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-green-100 to-green-50 text-green-700 border border-green-200'
+                                        : 'inline-flex px-4 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-red-100 to-red-50 text-red-700 border border-red-200'">
+                                    {{ materia.estado }}
+                                </span>
+                            </td>                          
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>

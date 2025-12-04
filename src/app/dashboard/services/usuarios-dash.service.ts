@@ -109,4 +109,5 @@ cambiarEstadoUsuario(login: string, estado: number): Observable<string> {
       responseType: 'text',
     });
   }
+  
 }
